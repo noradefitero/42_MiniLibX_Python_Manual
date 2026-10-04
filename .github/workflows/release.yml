@@ -1,0 +1,29 @@
+name: release
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended
+      - name: Make docs
+        run: make all
+      - name: Commit README.md
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: "README.md"
+          message: "docs(README): update generated documentation"
+      - name: Release MD and PDF
+        uses: softprops/action-gh-release@v3
+        with:
+          working_directory: dist
+          files: |
+            manual.md
+            manual.pdf
