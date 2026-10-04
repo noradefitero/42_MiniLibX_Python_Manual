@@ -6,7 +6,8 @@ TEMPLATE_PDF	:= $(SRC_DIR)/template/pdf.tex
 MD_FILES		:= $(patsubst $(SRC_DIR)/%.md,%.md,$(SRC))
 PDF_FILES 		:= $(patsubst $(SRC_DIR)/%.md,%.pdf,$(SRC))
 
-all: $(MD_FILES) $(PDF_FILES)
+SRC          := \
+                $(SRC_DIR)/manual.md
 
 %.md: $(SRC_DIR)/%.md
 	mkdir -p $(dir $@)
