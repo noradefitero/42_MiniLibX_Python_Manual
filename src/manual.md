@@ -430,4 +430,4 @@ The third parameter _param_ can be either the image identifier or the window ide
 
 # Got any suggestions?
 
-If you find any errors or have any new ideas for improving this repository, feel free to open an Issue or Pull Request, or contact me at my email address: <nora@defitero.com>
+If you find any errors or have any new ideas for improving this manual, feel free to open an Issue or Pull Request, or contact me at my email address: <nora@defitero.com>
