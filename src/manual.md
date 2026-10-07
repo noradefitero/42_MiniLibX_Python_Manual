@@ -18,7 +18,7 @@ acknowledgements: >
     This derivative work is published under the MIT license by Nora de Fitero Teijeira. Copies of the licenses can be found in the GitHub repository for this documentation.
 ---
 
-# Introduction
+## Introduction
 
 The MiniLibX Python Wrapper allows you to create graphical software easily without any knowledge of X-Window/Wayland/Vulkan on Unix/Linux, or AppKit on macOS. It provides:
 
@@ -28,11 +28,11 @@ The MiniLibX Python Wrapper allows you to create graphical software easily witho
 - Keyboard and mouse input handling
 - PNG and XPM image loading
 
-## How a graphics server works
+### How a graphics server works
 
 This library interacts with the underlying graphics system of your operating system. Before diving into usage, it's helpful to understand how graphics servers manage windows and handle user input.
 
-### Historical X-Window concept
+#### Historical X-Window concept
 
 X-Window is a network-oriented graphical system for Unix. It is based on two main parts:
 
@@ -45,7 +45,7 @@ A network connection must be established between these two entities to send draw
 
 Nowadays, most of the time, both run on the same computer.
 
-### Modern graphical approach
+#### Modern graphical approach
 
 Modern computers come with a powerful GPU that is directly accessed by applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol ensure communication with the compositor program that manages the various windows on screen and the user input events. For your own application:
 
@@ -54,29 +54,29 @@ Modern computers come with a powerful GPU that is directly accessed by applicati
 
 Unfortunately, this gain of graphical power through GPU access removes the networking aspects that exist with X-Window. It is not possible for a program to access a remote GPU and show its window on a remote display. But current software architectures are more likely based on a local display application that gets data in JSON through a web API.
 
-# Getting started
+## Getting started
 
-# Clone the source code
+### Clone the source code
 
 ```bash
 git clone https://github.com/42school/mlx_CLXV.git
 ```
 
-## Requirements
+### Requirements
 
-### Arch Linux
+#### Arch Linux
 
 ```bash
 sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tools shaderc
 ```
 
-### Debian/Ubuntu
+#### Debian/Ubuntu
 
 ```bash
 sudo apt install libxcb libxcb-keysyms libvulkan libz libbsd glslc
 ```
 
-## Installation
+### Installation
 
 First compile MiniLibX.
 
@@ -106,13 +106,13 @@ And install the package:
 pip install mlx_CLXV-2.2-py3-none-any.whl
 ```
 
-### Fallback
+#### Fallback
 
 As a fallback, you can use the packages distributed in the intranet **mlx-2.2-py3-ubuntu-any.whl** and **mlx-2.2-py3-fedora-any.whl** (accessed on January 29, 2026).
 
 In case you get an error when installing the distributed packages, try changing the name to **mlx-2.2-py3-none-any.whl**.
 
-## Example of use
+### Example of use
 
 This small Python script displays a small black window with text. It will also print the screen dimensions to stdout and listen for user clicks.
 
@@ -148,7 +148,7 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
-# Behind the Scenes
+## Behind the Scenes
 
 When an instance of the Mlx class is created, the first thing it does is construct the path to the C library called libmlx.so.
 
@@ -184,9 +184,9 @@ You can see how it calls mlx_func.mlx_init(). This mlx_init() is already the ori
 
 All of this is passed to CDLL, which, using the previously loaded library, will execute the function and return whatever the function returns.
 
-# Initialization and cleanup: mlx_init(), mlx_release()
+## Initialization and cleanup: mlx_init(), mlx_release()
 
-## Synopsis
+### Synopsis
 
 ```python
 from mlx import Mlx
@@ -196,7 +196,7 @@ def mlx_init() -> int: # void *
 def mlx_release() -> int: # void *
 ```
 
-## Description
+### Description
 
 First of all, you need to initialize the connection between your software and the graphic and user sub-systems. Once this completed, you'll be able to use other MiniLibX functions to send and receive the messages from the display, like "I want to draw a yellow pixel in this window" or "did the user hit a key?".
 
@@ -204,13 +204,13 @@ The mlx_init function will create this connection. No parameters are needed, ant
 
 If **mlx_init()** fails to set up the connection to the display, it will return None.
 
-## Return values
+### Return values
 
 If **mlx_init()** set up the connection to the display correctly, it will return an **int as a pointer**; otherwise, it returns **None**.
 
-# Managing windows: mlx_new_window(), mlx_clear_window, mlx_destroy_window
+## Managing windows: mlx_new_window(), mlx_clear_window, mlx_destroy_window
 
-## Synopsis
+### Synopsis
 
 ```python
     def mlx_new_window(mlx_ptr: int, width: int, height: int, title: str ) -> int: # void *
@@ -220,7 +220,7 @@ If **mlx_init()** set up the connection to the display correctly, it will return
     def mlx_destroy_window(mlx_ptr: int, win_ptr: int ) -> int:
 ```
 
-## Description
+### Description
 
 The **mlx_new_window** () function creates a new window on the screen, using the _width_ and _height_ parameters to determine its size, and _title_ as the text that should be displayed in the window\'s title bar.
 
@@ -230,15 +230,15 @@ Note that the MiniLibX can handle an arbitrary number of separate windows.
 
 **mlx_clear_window** () and **mlx_destroy_window** () respectively clear (in black) and destroy the given window. They both have the same parameters: _mlx_ptr_ is the screen connection identifier, and _win_ptr_ is a window identifier.
 
-## Return values
+### Return values
 
 If **mlx_new_window()** fails to create a new window (whatever the reason), it will return NULL, otherwise a non-null pointer is returned as a window identifier.
 
 **mlx_clear_window** and **mlx_destroy_window** return nothing.
 
-# Drawing inside windows: mlx_pixel_put(), mlx_string_put()
+## Drawing inside windows: mlx_pixel_put(), mlx_string_put()
 
-## Synopsis
+### Synopsis
 
 ```python
     def mlx_pixel_put(mlx_ptr: int, win_ptr: int, x: int, y: int, color: int) -> int:
@@ -246,7 +246,7 @@ If **mlx_new_window()** fails to create a new window (whatever the reason), it w
     def mlx_string_put(mlx_ptr: int, win_ptr: int, x: int, y: int, color: int, string: str) -> int:
 ```
 
-## Description
+### Description
 
 The **mlx_pixel_put** () function draws a defined pixel in the window _win_ptr_ using the ( _x_ , _y_ ) coordinates, and the specified _color_.
 
@@ -256,7 +256,7 @@ Parameters for **mlx_string_put** () have the same meaning. Instead of a simple 
 
 Both functions will discard any display outside the window. This makes **mlx_pixel_put** slow. Consider using images instead.
 
-## Color management
+### Color management
 
 The _color_ parameter has an unsigned integer type. The displayed colour needs to be encoded in this integer, following a defined scheme. All displayable colours can be split in 3 basic colours: red, green and blue. Three associated values, in the 0-255 range, represent how much of each colour is mixed up to create the original colour. The fourth byte represent transparency, where 0 is fully transparent and 255 opaque.
 
@@ -269,9 +269,9 @@ While filling the integer, make sure you avoid endian problems.
 
 Example: the \"blue\" byte will be the least significant byte inside the integer on a little endian machine.
 
-# Manipulating images: mlx_new_image(), mlx_get_data_addr(), mlx_put_image_to_window(), mlx_xpm_file_to_image(), mlx_png_file_to_image(), mlx_destroy_image()
+## Manipulating images: mlx_new_image(), mlx_get_data_addr(), mlx_put_image_to_window(), mlx_xpm_file_to_image(), mlx_png_file_to_image(), mlx_destroy_image()
 
-## Synopsis
+### Synopsis
 
 ```python
     def mlx_new_image(mlx_ptr: int, width: int, height: int) -> int: # void *
@@ -287,7 +287,7 @@ Example: the \"blue\" byte will be the least significant byte inside the integer
     def mlx_destroy_image(mlx_ptr: int, img_ptr: int) -> int:
 ```
 
-## Description
+### Description
 
 **mlx_new_image** () creates a new image in memory. It returns an _int pointer_ needed to manipulate this image later. It only needs the size of the image to be created, using the _width_ and _height_ parameters, and the _mlx_ptr_ connection identifier.
 
@@ -305,13 +305,13 @@ Currently only 2 values aredefined:
 
 **mlx_destroy_image** destroys the given image ( _img_ptr_ ).
 
-## Storing colours inside images
+### Storing colours inside images
 
 Depending on the graphic system, the number of bits used to store a pixel colour used to be different from one hardware to another. Today, the way the user usually represents a colour, in the ARGB mode, almost always matches the hardware capabilities on modern computers.
 
 Keep in mind that packing the 4-byte ARGB into an unsigned int depends on the local computer's endian. Adjust your code accordingly.
 
-## XPM and PNG images
+### XPM and PNG images
 
 The **mlx_xpm_file_to_image** () and **mlx_png_file_to_image** () functions will create a new image the same way. They will fill it using the specified _xpm_data_ or _filename_ , depending on which function is used. Note that MiniLibX does not use the standard Xpm and png libraries to deal with xpm and png images.
 
@@ -319,15 +319,15 @@ You may not be able to read all types of xpm and png images. It however handles 
 
 **mlx_xpm_to_image()** is not implemented in the Python wrapper as it is considered not useful in this context.
 
-## Return values
+### Return values
 
 The three functions that create images, **mlx_new_image()**, **mlx_xpm_file_to_image()** and **mlx_png_file_to_image()** , will return NULL if an error occurs.
 
 Otherwise they return a non-null pointer as an image identifier.
 
-# Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_hook()
+## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_hook()
 
-## Synopsis
+### Synopsis
 
 ```python
     def mlx_loop(mlx_ptr: int) -> int:
@@ -343,11 +343,11 @@ Otherwise they return a non-null pointer as an image identifier.
     def mlx_loop_exit(mlx_ptr: int) -> None:
 ```
 
-## Events
+### Events
 
 The graphical system is bi-directional. On one hand, the program sends orders to the screen to display pixels, images, and so on. On the other hand, it can get information from the keyboard and mouse associated to the screen. To do so, the program receives "events" from the keyboard or the mouse.
 
-## Description
+### Description
 
 To receive events, you must use **mlx_loop** (). This function never returns, unless **mlx_loop_exit** is called. It is an infinite loop that waits for an event, and then calls a user-defined function associated with this event. A single parameter is needed, the connection identifier _mlx_ptr_.
 
@@ -374,15 +374,15 @@ These function names are arbitrary. They here are used to distinguish parameters
 
 _param_ is the address specified in the mlx\_\*\_hook calls. This address is never used nor modified by the MiniLibX. On key and mouse events, additional information is passed: _keycode_ tells you which key is pressed (just try to find out :) ), ( _x_ , _y_ ) are the coordinates of the mouse click in the window, and _button_ tells you which mouse button was pressed.
 
-## Going further with events
+### Going further with events
 
 The MiniLibX provides a much generic access to other available events. The _mlx.h_ include define **mlx_hook()** in the same manner mlx\_\*\_hook functions work. The event and mask values will be taken from the historical X11 include file \"X.h\". Some Wayland and MacOS events are mapped to these values when it makes sense, and the mask may not be used in some configurations.
 
 See source code of the MiniLibX to find out how it will call your own function for a specific event.
 
-# Extra functions
+## Extra functions
 
-## Synopsis
+### Synopsis
 
 ```python
     def mlx_mouse_hide(mlx_ptr: int) -> int:
@@ -404,19 +404,19 @@ See source code of the MiniLibX to find out how it will call your own function f
     def mlx_sync(mlx_ptr: int, cmd: int, img_or_win_ptr: int) -> int:
 ```
 
-## Mouse extra functions
+### Mouse extra functions
 
 It is possible to show / hide the mouse, and get its current position without user click or force its position inside a window.
 
-## Keyboard extra functions
+### Keyboard extra functions
 
 The auto-repeat mode of the keyboard can be controlled. By default, auto-repeat is on: multiple "key pressed" events are generated every second until the key is released.
 
-## Screen extra function
+### Screen extra function
 
 It is possible to retrieve the size of the current screen, even before the first window is created.
 
-## Flush and sync functions
+### Flush and sync functions
 
 The **mlx_do_sync** function will flush the pending commands to the graphic subsystems, ensuring nothing is cached on your software's side.
 On return, there is no guarantee that your commands have been processed.
@@ -428,6 +428,6 @@ SYNC_WIN_FLUSH = 2
 SYNC_WIN_COMPLETED = 3
 The third parameter _param_ can be either the image identifier or the window identifier.
 
-# Got any suggestions?
+## Got any suggestions?
 
 If you find any errors or have any new ideas for improving this manual, feel free to open an Issue or Pull Request, or contact me at my email address: <nora@defitero.com>
