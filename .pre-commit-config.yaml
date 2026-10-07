@@ -3,6 +3,12 @@ repos:
     rev: v0.49.1
     hooks:
       - id: markdownlint-fix
+  - repo: https://github.com/meliache/pre-commit-chktex
+    rev: v0.2.2
+    hooks:
+      - id: chktex-system # install and use chktex via a conda
+      # alternative: use the following line to use the system chktex
+      # - id: chktex-system
   - repo: https://github.com/jorisroovers/gitlint
     rev: v0.19.1
     hooks:
