@@ -1,20 +1,19 @@
-<!-- markdownlint-disable MD033 MD041 -->
-<p align="center">
-    Get the PDF version of this documentation! <a href="https://github.com/dde-fite/42_MiniLibX_Python_Manual/releases"><b>Download manual.pdf</b></a>
+<!-- markdownlint-disable MD013 MD024 MD033 MD041 -->
+<p align='center'>
+    Get the PDF version of this documentation! <a href='https://github.com/dde-fite/42_MiniLibX_Python_Manual/releases'><b>Download manual.pdf</b></a>
 </p>
-<p align="center">
-<img align="center" src="media/42_MiniLibX_Python_Manual.jpg" alt="MiniLibX
-Python Manual">
-    <h1 align="center">MiniLibX Python Manual</h1>
+<p align='center'>
+<img align='center' src='media/42_MiniLibX_Python_Manual.jpg' alt='MiniLibX
+Python Manual'>
+    <h1 align='center'>MiniLibX Python Manual</h1>
 </p>
 
-<div align="center">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/noradefitero/42_MiniLibX_Python_Manual">
-    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/noradefitero/42_MiniLibX_Python_Manual/ci.yml">
-    <img alt="Licence" src="https://img.shields.io/github/license/noradefitero/42_MiniLibX_Python_Manual">
-    <img alt="42 Network Badge" src="https://img.shields.io/badge/42%20Network-000000?&logo=42&logoColor=white">
+<div align='center'>
+    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/noradefitero/42_MiniLibX_Python_Manual/ci.yml'>
+    <img alt='Licence' src='https://img.shields.io/github/license/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='42 Network Badge' src='https://img.shields.io/badge/42%20Network-000000?&logo=42&logoColor=white'>
 </div>
-<!-- markdownlint-enable MD033 MD041 -->
 
 ## Abstract
 
@@ -73,6 +72,8 @@ to the native MiniLibX library.
   - [Screen extra function](#screen-extra-function)
   - [Flush and sync functions](#flush-and-sync-functions)
 - [Got any suggestions?](#got-any-suggestions)
+
+<!-- markdownlint-disable MD013 MD024 -->
 
 ## Introduction
 
@@ -160,7 +161,7 @@ make install
 
 Create a virtual environment with your preferred manager and open it:
 
-- For bash/zsh:
+- For bash/Zsh:
 
 ``` bash
 python -m venv .venv
@@ -382,8 +383,8 @@ blue. Three associated values, in the 0-255 range, represent how much of
 each colour is mixed up to create the original colour. The fourth byte
 represent transparency, where 0 is fully transparent and 255 opaque.
 
-Theses four values must be set inside the unsigned integer to display
-the right colour. The bytes of this integer are filled as shown in the
+These four values must be set inside the unsigned integer to display the
+right colour. The bytes of this integer are filled as shown in the
 picture below:
 
 ``` txt
@@ -470,10 +471,10 @@ on the local computer’s endian. Adjust your code accordingly.
 The **mlx_xpm_file_to_image** () and **mlx_png_file_to_image** ()
 functions will create a new image the same way. They will fill it using
 the specified *xpm_data* or *filename* , depending on which function is
-used. Note that MiniLibX does not use the standard Xpm and png libraries
-to deal with xpm and png images.
+used. Note that MiniLibX does not use the standard Xpm and PNG libraries
+to deal with xpm and PNG images.
 
-You may not be able to read all types of xpm and png images. It however
+You may not be able to read all types of xpm and PNG images. It however
 handles transparency.
 
 **mlx_xpm_to_image()** is not implemented in the Python wrapper as it is
@@ -528,7 +529,7 @@ You can assign different functions to the three following events:
 - A part of the window should be re-drawn (this is called an “expose”
   event, and it is your program’s job to handle it in the Unix/Linux X11
   environment, but at the opposite it never happens on Unix/Linux
-  Wayland-Vulkan nor on MacOS).
+  Wayland-Vulkan nor on macOS).
 
 Each window can define a different function for the same event.
 
@@ -570,7 +571,7 @@ button was pressed.
 The MiniLibX provides a much generic access to other available events.
 The *mlx.h* include define **mlx_hook()** in the same manner
 mlx\_\*\_hook functions work. The event and mask values will be taken
-from the historical X11 include file "X.h". Some Wayland and MacOS
+from the historical X11 include file "X.h". Some Wayland and macOS
 events are mapped to these values when it makes sense, and the mask may
 not be used in some configurations.
 
