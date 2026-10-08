@@ -1,3 +1,5 @@
 # Generated files
 README.md
 dist/
+
+.github/pull_request_template.md
