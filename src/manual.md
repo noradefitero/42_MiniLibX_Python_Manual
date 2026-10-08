@@ -1,25 +1,25 @@
 ---
 title: MiniLibX Python Manual
 abstract: >
-    This documentation is a PORT of the ORIGINAL MiniLibX docs.
+  This documentation is a PORT of the ORIGINAL MiniLibX docs.
 
-    It describes the Python package that provides access to the MiniLibX
-    graphics library. It allows creating windows, drawing pixels, handling
-    images, and capturing keyboard and mouse input through a thin wrapper over
-    the original C API, keeping function names and behavior as close as possible
-    to the native MiniLibX library.
+  It describes the Python package that provides access to the MiniLibX
+  graphics library. It allows creating windows, drawing pixels, handling
+  images, and capturing keyboard and mouse input through a thin wrapper over
+  the original C API, keeping function names and behavior as close as possible
+  to the native MiniLibX library.
 author: "Nora de Fitero Teijeira (noradefitero)"
 titlepage-logo: "media/42_MiniLibX_Python_Manual.jpg"
 logo-width: 300px
 acknowledgements: >
-    The original MiniLibX documentation was created by Olivier Crouzet under the
-    MIT license. This is a derivative work based on his work, created on a
-    non-profit basis with the aim of sharing knowledge among the 42 student
-    community.
+  The original MiniLibX documentation was created by Olivier Crouzet under the
+  MIT license. This is a derivative work based on his work, created on a
+  non-profit basis with the aim of sharing knowledge among the 42 student
+  community.
 
-    This derivative work is published under the MIT license by Nora de Fitero
-    Teijeira. Copies of the licenses can be found in the GitHub repository for
-    this documentation.
+  This derivative work is published under the MIT license by Nora de Fitero
+  Teijeira. Copies of the licenses can be found in the GitHub repository for
+  this documentation.
 ---
 
 <!-- markdownlint-disable MD013 MD024 -->
