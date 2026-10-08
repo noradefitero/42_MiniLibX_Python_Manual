@@ -1,0 +1,3 @@
+MD013: false # line length: long function-signature headings and code lines
+MD024:
+  siblings_only: true # repeated per-section Synopsis/Description/Return values
