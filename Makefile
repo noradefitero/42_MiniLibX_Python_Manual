@@ -25,11 +25,11 @@ readme: README.md
 
 README.md: $(SRC_DIR)/manual.md
 	mkdir -p $(dir $@)
-	pandoc --template $(TEMPLATE_README_MD) -t gfm --shift-heading-level-by=1 --toc $< -o $@
+	pandoc --template $(TEMPLATE_README_MD) -t gfm --toc $< -o $@
 
 $(DIST_DIR)/%.md: $(SRC_DIR)/%.md
 	mkdir -p $(dir $@)
-	pandoc --template $(TEMPLATE_MD) -t gfm --shift-heading-level-by=1 --toc $< -o $@
+	pandoc --template $(TEMPLATE_MD) -t gfm --toc $< -o $@
 
 $(DIST_DIR)/%.pdf: $(SRC_DIR)/%.md
 	mkdir -p $(dir $@)
