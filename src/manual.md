@@ -262,8 +262,10 @@ The _color_ parameter has an unsigned integer type. The displayed colour needs t
 
 Theses four values must be set inside the unsigned integer to display the right colour. The bytes of this integer are filled as shown in the picture below:
 
-            | B | G | R | A |   colour integer
-            +---+---+---+---+
+```txt
+| B | G | R | A |   colour integer
++---+---+---+---+
+```
 
 While filling the integer, make sure you avoid endian problems.
 
@@ -365,10 +367,12 @@ The syntax for the **mlx_loop_hook** () function is similar to the previous ones
 
 When it catches an event, the MiniLibX calls the corresponding function with fixed parameters:
 
-      expose_hook(void *param);
-      key_hook(unsigned int keycode, void *param);
-      mouse_hook(unsigned int button, unsigned int x, unsigned int y, void *param);
-      loop_hook(void *param);
+```c
+expose_hook(void *param);
+key_hook(unsigned int keycode, void *param);
+mouse_hook(unsigned int button, unsigned int x, unsigned int y, void *param);
+loop_hook(void *param);
+```
 
 These function names are arbitrary. They here are used to distinguish parameters according to the event. These functions are NOT part of the MiniLibX.
 
