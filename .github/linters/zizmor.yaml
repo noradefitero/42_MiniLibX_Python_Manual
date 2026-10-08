@@ -1,0 +1,15 @@
+# Actions are pinned to version tags (release-please keeps super-linter up to
+# date), which satisfies the "ref-pin" policy for these sources.
+rules:
+  # The publish workflow deliberately uses action-gh-release instead of the
+  # `gh release` CLI; this is an informational, non-failing finding.
+  superfluous-actions:
+    disable: true
+  unpinned-uses:
+    config:
+      policies:
+        actions/*: ref-pin
+        super-linter/*: ref-pin
+        softprops/*: ref-pin
+        EndBug/*: ref-pin
+        googleapis/*: ref-pin

@@ -1,0 +1,4 @@
+[codespell]
+# `figurestyle` is a LaTeX macro name in the third-party Eisvogel template.
+ignore-words-list = figurestyle
+skip = README.md

@@ -1,2 +1,4 @@
-./*.pdf
-./*.md
+node_modules/
+
+# Generated
+dist/

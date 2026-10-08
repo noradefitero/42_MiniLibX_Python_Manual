@@ -1,0 +1,27 @@
+name: publish
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install pandoc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended
+      - name: Make docs
+        run: make all
+      - name: Release MD and PDF
+        uses: softprops/action-gh-release@v3
+        with:
+          working_directory: dist
+          body_path: CHANGELOG.md
