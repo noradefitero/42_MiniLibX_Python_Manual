@@ -79,13 +79,15 @@ gets data in JSON through a web API.
 
 ## Getting started
 
-### Clone the source code
+### Requirements
+
+#### Homebrew (macOS)
+
+- Xcode's Command Line
 
 ```bash
-git clone https://github.com/42school/mlx_CLXV.git
+brew install vulkan-loader vulkan-tools
 ```
-
-### Requirements
 
 #### Arch Linux
 
