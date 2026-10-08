@@ -4,7 +4,7 @@ repos:
       - id: textlint
         language: system
         name: Run tests
-        entry: npx -y textlint
+        entry: npx -y -p textlint -p textlint-rule-terminology -p textlint-filter-rule-comments textlint -c .textlintrc.json
         stage: [commit]
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
