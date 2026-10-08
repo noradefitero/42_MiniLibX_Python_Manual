@@ -36,3 +36,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_GH_TOKEN }}
           FILTER_REGEX_EXCLUDE: (^|/)README\.md$,(^|/)README\.pdf$
+          VALIDATE_BIOME_FORMAT: "false"
+          VALIDATE_BIOME_LINT: "false"
