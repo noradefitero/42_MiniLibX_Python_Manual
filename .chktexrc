@@ -1,0 +1,10 @@
+# The pandoc templates use hyphens in URLs/HTML comments and unbalanced
+# $...$ control sequences; silence the dash and math-mode noise they cause.
+HyphDash { 1 3 }
+
+CmdLine
+{
+    -n16
+    -n25
+    -n36
+}
