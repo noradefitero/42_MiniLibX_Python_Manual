@@ -35,5 +35,4 @@ jobs:
         uses: super-linter/super-linter@v9.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.ACTIONS_GH_TOKEN }}
-          VALIDATE_BIOME_FORMAT: "false"
-          VALIDATE_BIOME_LINT: "false"
+          FILTER_REGEX_EXCLUDE: (^|/)README\.md$,(^|/)README\.pdf$
