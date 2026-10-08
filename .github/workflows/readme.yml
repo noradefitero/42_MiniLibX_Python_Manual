@@ -15,6 +15,7 @@ jobs:
           # release events check out a tag in detached HEAD, where
           # add-and-commit cannot push; check out the default branch instead
           ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
       - name: Install pandoc
         run: |
           sudo apt-get update
