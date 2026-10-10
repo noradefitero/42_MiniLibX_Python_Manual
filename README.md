@@ -105,10 +105,20 @@ This library interacts with the underlying graphics system of your
 operating system. Before diving into usage, it’s helpful to understand
 how graphics servers manage windows and handle user input.
 
-#### Historical X-Window concept
+#### Unix/Linux: Historical X-Window concept
 
-X-Window is a network-oriented graphical system for Unix. It is based on
-two main parts:
+The X Window System is a software stack that is used to display text and
+graphics on a screen. The overall look and design of an X client is not
+dictated by the X Window System, but is instead handled by each
+individual X client, a window manager (e.g. Window Maker, Tab Window
+Manager), or a complete desktop environment such as KDE, GNOME, or Xfce.
+
+The X Window System is cross-platform and runs on various operating
+systems such as Linux, the BSDs, Solaris and other Unix-like systems.
+There are also implementations available for Apple’s macOS and Microsoft
+Windows.
+
+It is based on two main parts:
 
 - On one side, your software wants to draw something on the screen and
   or get keyboard & mouse entries.
@@ -120,9 +130,12 @@ A network connection must be established between these two entities to
 send drawing orders (from the software to the X-Server), and
 keyboard/mouse events (from the X-Server to the software).
 
+![Shows an scheme of an example using XWindow](media/fig3.jpeg) From
+[LPI](https://learning.lpi.org/en/learning-materials/102-500/106/106.1/106.1_01/).
+
 Nowadays, most of the time, both run on the same computer.
 
-#### Modern graphical approach
+#### Unix/Linux: Wayland, the modern graphical approach
 
 Modern computers come with a powerful GPU that is directly accessed by
 applications. Along GPU libraries like Vulkan or OpenGL, the Wayland
@@ -140,6 +153,12 @@ the networking aspects that exist with X-Window. It is not possible for
 a program to access a remote GPU and show its window on a remote
 display. But current software architectures are more likely based on a
 local display application that gets data in JSON through a web API.
+
+#### MacOS: Windows server and GPU
+
+Your software interacts directly with the Window server who handles the
+cohabitation on the screen with other software and the event system, and
+interacts with the GPU to handle all drawing commands.
 
 ## Getting started
 
