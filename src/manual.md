@@ -168,14 +168,11 @@ And install the package:
 pip install mlx_CLXV-X.X-py3-none-any.whl
 ```
 
-#### Fallback
+> Tip: Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
 
-As a fallback, you can use the packages distributed in the intranet
-**mlx-2.2-py3-ubuntu-any.whl** and **mlx-2.2-py3-fedora-any.whl** (accessed on
-January 29, 2026).
+![Chart with benchmark results. From uv's docs](media/fig2.svg)
 
-In case you get an error when installing the distributed packages, try changing
-the name to **mlx-2.2-py3-none-any.whl**.
+> More info in their documentation: [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/)
 
 ### Example of use
 
