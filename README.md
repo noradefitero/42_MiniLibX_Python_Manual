@@ -575,10 +575,10 @@ on the local computer’s endian. Adjust your code accordingly.
 The **mlx_xpm_file_to_image** () and **mlx_png_file_to_image** ()
 functions will create a new image the same way. They will fill it using
 the specified *xpm_data* or *filename* , depending on which function is
-used. Note that MiniLibX does not use the standard Xpm and png libraries
-to deal with xpm and png images.
+used. Note that MiniLibX does not use the standard Xpm and PNG libraries
+to deal with xpm and PNG images.
 
-You may not be able to read all types of xpm and png images. It however
+You may not be able to read all types of xpm and PNG images. It however
 handles transparency.
 
 **mlx_xpm_to_image()** is not implemented in the Python wrapper as it is
@@ -670,7 +670,7 @@ button was pressed.
 The MiniLibX provides a much generic access to other available events.
 The *mlx.h* include define **mlx_hook()** in the same manner
 mlx\_\*\_hook functions work. The event and mask values will be taken
-from the historical X11 include file "X.h". Some Wayland and MacOS
+from the historical X11 include file "X.h". Some Wayland and macOS
 events are mapped to these values when it makes sense, and the mask may
 not be used in some configurations.
 
