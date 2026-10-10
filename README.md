@@ -278,14 +278,17 @@ We will explain the functions used in this example later.
 ``` python
 from mlx import Mlx
 
+
 def mymouse(button, x, y, mystuff):
     print(f"Got mouse event! button {button} at {x},{y}.")
+
 
 def mykey(keynum, mystuff):
     print(f"Got key {keynum}, and got my stuff back:")
     print(mystuff)
     if keynum == 32:
         m.mlx_mouse_hook(win_ptr, None, None)
+
 
 m = Mlx()
 mlx_ptr = m.mlx_init()
