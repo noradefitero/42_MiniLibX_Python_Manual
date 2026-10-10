@@ -93,9 +93,11 @@ Your software interacts directly with the Window server that handles the cohabit
 
 ### Requirements
 
+These lists cover building from source. MiniLibX is supported on Linux (XCB backend by default, Wayland optional) and macOS (Intel and Apple Silicon). Windows is not supported (there is no Win32 backend), and WSL is not officially documented (it may work under WSLg, but without guarantees). The examples in this manual use Python type hints such as `X | None`, which require Python 3.10 or newer; the library itself does not declare a minimum version.
+
 #### Homebrew (macOS)
 
-- Xcode's Command Line
+- Xcode command-line tools (`xcode-select --install`)
 
 ```bash
 brew install vulkan-loader vulkan-tools
@@ -106,6 +108,8 @@ brew install vulkan-loader vulkan-tools
 ```bash
 sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tools shaderc
 ```
+
+shaderc is only needed to recompile the shaders; the precompiled ones are shipped with the library.
 
 #### Debian/Ubuntu
 
