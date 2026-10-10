@@ -348,7 +348,7 @@ If **mlx_init()** fails to set up the connection to the display, it will return
 If **mlx_init()** set up the connection to the display correctly, it will return
 an **int as a pointer**; otherwise, it returns **None**.
 
-## Managing windows: mlx_new_window(), mlx_clear_window, mlx_destroy_window
+## Managing windows: mlx_new_window(), mlx_clear_window(), mlx_destroy_window()
 
 ### Synopsis
 
