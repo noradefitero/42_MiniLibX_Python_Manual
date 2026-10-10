@@ -487,12 +487,14 @@ blue. Three associated values, in the 0-255 range, represent how much of
 each colour is mixed up to create the original colour. The fourth byte
 represent transparency, where 0 is fully transparent and 255 opaque.
 
-Theses four values must be set inside the unsigned integer to display
-the right colour. The bytes of this integer are filled as shown in the
+These four values must be set inside the unsigned integer to display the
+right colour. The bytes of this integer are filled as shown in the
 picture below:
 
-            | B | G | R | A |   colour integer
-            +---+---+---+---+
+``` txt
+| B | G | R | A |   colour integer
++---+---+---+---+
+```
 
 While filling the integer, make sure you avoid endian problems.
 
