@@ -347,6 +347,9 @@ $highlighting-macros$
 $endif$
 $if(tables)$
 \usepackage{longtable,booktabs,array}
+% pandoc wraps caption-less tables in {\def\LTcaptype{none} ...}; modern
+% longtable steps a counter named "none", so it must be declared first.
+\newcounter{none}
 $if(multirow)$
 \usepackage{multirow}
 $endif$
