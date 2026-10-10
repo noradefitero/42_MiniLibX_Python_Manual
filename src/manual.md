@@ -671,16 +671,22 @@ ignored in some configurations.
 It is possible to show / hide the mouse, and get its current position without
 user click or force its position inside a window.
 
+**mlx_mouse_get_pos**() returns ( _status_ , _x_ , _y_ ): _status_ is 0 on
+success and -1 on failure.
+
 ### Keyboard extra functions
 
 The auto-repeat mode of the keyboard can be controlled. By default, auto-repeat
-is on: multiple "key pressed" events are generated every second until the key is
+is on: while a key is held, multiple key events are generated until the key is
 released.
 
 ### Screen extra function
 
 It is possible to retrieve the size of the current screen, even before the first
 window is created.
+
+**mlx_get_screen_size**() returns ( _status_ , _width_ , _height_ ): _status_ is
+always 0.
 
 ### Flush and sync functions
 
