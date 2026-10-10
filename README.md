@@ -736,6 +736,15 @@ identifier.
 
 ## Got any suggestions?
 
-If you find any errors or have any new ideas for improving this
-repository, feel free to open an Issue or Pull Request, or contact me at
-my email address: nora@defitero.com
+If you find any errors or have any new ideas for improving this manual,
+feel free to open an Issue or Pull Request, or contact me at my email
+address: <nora@defitero.com>
+
+## Acknowledgements
+
+The original MiniLibX documentation was created by Olivier Crouzet under
+the MIT license. This is a derivative work based on his work, created on
+a non-profit basis with the aim of sharing knowledge among the 42
+student community. This derivative work is published under the MIT
+license by Nora de Fitero Teijeira. Copies of the licenses can be found
+in the GitHub repository for this documentation.
