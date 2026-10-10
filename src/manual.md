@@ -26,9 +26,11 @@ acknowledgements: >
 
 ## Introduction
 
-The MiniLibX Python Wrapper allows you to create graphical software easily
-without any knowledge of X-Window/Wayland/Vulkan on Unix/Linux, or AppKit on
-macOS. It provides:
+The MinilibX or MLX is a C (we’ll discuss this later) library that provides a very simple API to the graphic capabilities. It's designed to be easy enough for early stage coders that could not immediately use standard graphical libraries and windowing systems.
+
+The set of features is limited, on purpose, and is not meant to be extended. The learners have to build more advanced features, hence developping their own coding skills.
+
+It provides:
 
 - Window creation and management
 - Pixel-level drawing
