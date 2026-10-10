@@ -221,6 +221,41 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
+> This first example never quits on its own: it runs until you stop it. While
+> `mlx_loop()` is running, Python can't catch `Ctrl-C`, so press `Ctrl-\` to
+> kill the program. If you'd rather quit gracefully, the next example shows how.
+
+#### A simple game loop
+
+When the program has no pending events, MiniLibX calls the function registered with **mlx_loop_hook**(); this makes it the right place to redraw the scene once per frame. The loop keeps running until **mlx_loop_exit**() is called, for example from a key callback. The key callback receives the keycode and the user parameter, while the loop callback only receives the user parameter.
+
+```python
+from mlx import Mlx
+
+m = Mlx()
+mlx_ptr = m.mlx_init()
+if mlx_ptr is None:
+    raise RuntimeError("mlx_init() failed")
+win_ptr = m.mlx_new_window(mlx_ptr, 640, 480, "Game loop")
+
+
+def mykey(keynum, param):
+    if keynum == 32:  # space
+        m.mlx_loop_exit(mlx_ptr)
+
+
+def render(param):
+    m.mlx_clear_window(mlx_ptr, win_ptr)
+    m.mlx_string_put(mlx_ptr, win_ptr, 10, 10, 255, "Hello PyMlx!")
+    return 0
+
+
+m.mlx_key_hook(win_ptr, mykey, None)
+m.mlx_loop_hook(mlx_ptr, render, None)
+m.mlx_loop(mlx_ptr)
+m.mlx_release(mlx_ptr)
+```
+
 ## What is the MLX Wrapper? And why is it so important?
 
 Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, "test")` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right?
