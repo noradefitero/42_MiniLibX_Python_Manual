@@ -162,13 +162,15 @@ interacts with the GPU to handle all drawing commands.
 
 ## Getting started
 
-## Clone the source code
+### Requirements
+
+#### Homebrew (macOS)
+
+- Xcode’s Command Line
 
 ``` bash
-git clone https://github.com/42school/mlx_CLXV.git
+brew install vulkan-loader vulkan-tools
 ```
-
-### Requirements
 
 #### Arch Linux
 
@@ -182,17 +184,58 @@ sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tool
 sudo apt install libxcb libxcb-keysyms libvulkan libz libbsd glslc
 ```
 
-### Installation
+### Build source code (Recommended way)
 
-First compile MiniLibX.
+These steps must be performed on every machine/architecture where the
+library will be run.
+
+#### Clone the repository
 
 ``` bash
-make install
+git clone https://github.com/42school/mlx_CLXV.git
 ```
+
+#### Run compiling scripts
+
+Execute the configuration script provided
+
+``` bash
+./configure.sh
+```
+
+Then compile MiniLibX
+
+``` bash
+make
+```
+
+A Python package similar to the following should appear in the root of
+the repository: mlx-X.X-py3-none-any.whl
+
+### Get the compiled package from intra (not recommended)
+
+On the 42 intranet, in the Python projects that use MLX (a_maze_ing,
+etc.), you’ll find a folder containing .whl files.
+
+<figure>
+<img src="media/fig1.jpg" alt="Screenshot of the folder" />
+<figcaption aria-hidden="true">Screenshot of the folder</figcaption>
+</figure>
+
+These can be used as a fallback if you’ve had trouble compiling
+MinilibX, but it’s not recommended to use them as your primary method,
+because since they were compiled on other computers, in different
+environments, or on different architectures, they may cause problems on
+your PC or any other machine.
+
+> In case you get an error when installing the distributed packages, try
+> changing the name to **mlx-2.2-py3-none-any.whl**.
+
+### Install the .whl
 
 Create a virtual environment with your preferred manager and open it:
 
-- For bash/zsh:
+- For bash/Zsh:
 
 ``` bash
 python -m venv .venv
@@ -209,17 +252,20 @@ source .venv/bin/activate.fish
 And install the package:
 
 ``` bash
-pip install mlx_CLXV-2.2-py3-none-any.whl
+pip install mlx_CLXV-X.X-py3-none-any.whl
 ```
 
-#### Fallback
+> Tip: Do you find virtual environments confusing? Try uv, a version and
+> project manager written in Rust.
 
-As a fallback, you can use the packages distributed in the intranet
-**mlx-2.2-py3-ubuntu-any.whl** and **mlx-2.2-py3-fedora-any.whl**
-(accessed on January 29, 2026).
+<figure>
+<img src="media/fig2.svg"
+alt="Chart with benchmark results. From uv’s docs" />
+<figcaption aria-hidden="true">Chart with benchmark results. From uv’s
+docs</figcaption>
+</figure>
 
-In case you get an error when installing the distributed packages, try
-changing the name to **mlx-2.2-py3-none-any.whl**.
+> More info in their documentation: <https://docs.astral.sh/uv/>
 
 ### Example of use
 
