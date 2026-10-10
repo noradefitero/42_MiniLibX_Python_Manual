@@ -271,19 +271,21 @@ Let’s take a closer look at how it works.
 ### How does the wrapper work?
 
 When an instance of the Mlx class is created, the first thing it does is
-construct the path to the C library called libmlx.so.
+construct the path to the C library that ships alongside the package: it is
+called libmlx.dylib on macOS and libmlx.so everywhere else.
 
 ```python
 def __init__(self):
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    self.so_file = os.path.join(module_dir, "libmlx.so")
+    libname = "libmlx.dylib" if sys.platform == "darwin" else "libmlx.so"
+    self.so_file = os.path.join(module_dir, libname)
     # ...
 ```
 
 - \_\_file\_\_ is a special Python variable that contains the path to the file
   where this code is executed.
 
-- os.path.dirname extracts the path from **file** and uses os.path.join to
+- os.path.dirname extracts the path from `__file__` and uses os.path.join to
   create the path to the library.
 
 It then declares the mlx_func variable, which acts as a bridge between Python
