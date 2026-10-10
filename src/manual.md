@@ -651,7 +651,7 @@ ignored in some configurations.
 
     def mlx_mouse_show(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_move(mlx_ptr: int | None, x: int, y: int) -> int:
+    def mlx_mouse_move(win_ptr: int | None, x: int, y: int) -> int:
 
     def mlx_mouse_get_pos(win_ptr: int | None) -> tuple[int, int, int]: # (status, x, y)
 
