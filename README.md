@@ -9,9 +9,9 @@ Python Manual'>
 </p>
 
 <div align='center'>
-    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/dde-fite/42_MiniLibX_Python_Manual'>
-    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/dde-fite/42_MiniLibX_Python_Manual/ci.yml'>
-    <img alt='Licence' src='https://img.shields.io/github/license/dde-fite/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/noradefitero/42_MiniLibX_Python_Manual/ci.yml'>
+    <img alt='Licence' src='https://img.shields.io/github/license/noradefitero/42_MiniLibX_Python_Manual'>
     <img alt='42 Network Badge' src='https://img.shields.io/badge/42%20Network-000000?&logo=42&logoColor=white'>
 </div>
 
@@ -44,8 +44,8 @@ to the native MiniLibX library.
   - [Synopsis](#synopsis)
   - [Description](#description)
   - [Return values](#return-values)
-- [Managing windows: mlx_new_window(), mlx_clear_window,
-  mlx_destroy_window](#managing-windows-mlx_new_window-mlx_clear_window-mlx_destroy_window)
+- [Managing windows: mlx_new_window(), mlx_clear_window(),
+  mlx_destroy_window()](#managing-windows-mlx_new_window-mlx_clear_window-mlx_destroy_window)
   - [Synopsis](#synopsis-1)
   - [Description](#description-1)
   - [Return values](#return-values-1)
@@ -65,10 +65,11 @@ to the native MiniLibX library.
   - [Return values](#return-values-2)
 - [Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(),
   mlx_expose_hook(), mlx_loop_hook(),
-  mlx_loop_hook()](#handle-events-mlx_loop-mlx_key_hook-mlx_mouse_hook-mlx_expose_hook-mlx_loop_hook-mlx_loop_hook)
+  mlx_loop_exit()](#handle-events-mlx_loop-mlx_key_hook-mlx_mouse_hook-mlx_expose_hook-mlx_loop_hook-mlx_loop_exit)
   - [Synopsis](#synopsis-4)
   - [Events](#events)
   - [Description](#description-4)
+  - [Callbacks in Python](#callbacks-in-python)
   - [Going further with events](#going-further-with-events)
 - [Extra functions](#extra-functions)
   - [Synopsis](#synopsis-5)
@@ -82,14 +83,14 @@ to the native MiniLibX library.
 
 ## Introduction
 
-The MinilibX or MLX is a C (we’ll discuss this later) library that
-provides a very simple API to the graphic capabilities. It’s designed to
-be easy enough for early stage coders that could not immediately use
-standard graphical libraries and windowing systems.
+The MinilibX or MLX is a library written in C (we’ll come back to that)
+that provides a very simple API to the graphic capabilities. It’s
+designed to be easy enough for early stage coders that could not
+immediately use standard graphical libraries and windowing systems.
 
 The set of features is limited, on purpose, and is not meant to be
 extended. The learners have to build more advanced features, hence
-developping their own coding skills.
+developing their own coding skills.
 
 It provides:
 
@@ -119,8 +120,8 @@ Microsoft Windows as well.
 
 It is based on two main parts:
 
-- On one side, your software wants to draw something on the screen and
-  or get keyboard & mouse entries.
+- On one side, your software wants to draw something on the screen
+  and/or get keyboard & mouse entries.
 
 - On the other side, the X-Server manages the screen, keyboard and mouse
   (It is often referred to as a "display").
@@ -129,23 +130,27 @@ A network connection must be established between these two entities to
 send drawing orders (from the software to the X-Server), and
 keyboard/mouse events (from the X-Server to the software).
 
-![Shows an scheme of an example using XWindow](media/fig3.jpeg)
-Image from the [LPI learning material](https://learning.lpi.org/en/learning-materials/102-500/106/106.1/106.1_01/) (CC BY-NC-ND 4.0).
-
 Nowadays, most of the time, both run on the same computer.
+
+<figure>
+<img src="media/fig3.jpg"
+alt="Shows an scheme of an example using XWindow" />
+<figcaption aria-hidden="true">Shows an scheme of an example using
+XWindow</figcaption>
+</figure>
 
 #### Unix/Linux: Wayland, the modern graphical approach
 
 Modern computers come with a powerful GPU that is directly accessed by
 applications. Along GPU libraries like Vulkan or OpenGL, the Wayland
-protocol ensure communication with the compositor program that manages
+protocol ensures communication with the compositor program that manages
 the various windows on screen and the user input events. For your own
 application:
 
-- The Vulkan or OpenGL library allow you to directly draw any content
+- The Vulkan or OpenGL library allows you to directly draw any content
   into your window.
 - The Wayland compositor handles the place of your window on screen and
-  send you back the keyboard and mouse inputs from the user.
+  sends you back the keyboard and mouse inputs from the user.
 
 Unfortunately, this gain of graphical power through GPU access removes
 the networking aspects that exist with X-Window. It is not possible for
@@ -153,9 +158,9 @@ a program to access a remote GPU and show its window on a remote
 display. But current software architectures are more likely based on a
 local display application that gets data in JSON through a web API.
 
-#### MacOS: Windows server and GPU
+#### MacOS: Window server and GPU
 
-Your software interacts directly with the Window server who handles the
+Your software interacts directly with the Window server that handles the
 cohabitation on the screen with other software and the event system, and
 interacts with the GPU to handle all drawing commands.
 
@@ -163,9 +168,17 @@ interacts with the GPU to handle all drawing commands.
 
 ### Requirements
 
+These lists cover building from source. MiniLibX is supported on Linux
+(XCB backend by default, Wayland optional) and macOS (Intel and Apple
+Silicon). Windows is not supported (there is no Win32 backend), and WSL
+is not officially documented (it may work under WSLg, but without
+guarantees). The examples in this manual use Python type hints such as
+`X | None`, which require Python 3.10 or newer; the library itself does
+not declare a minimum version.
+
 #### Homebrew (macOS)
 
-- Xcode’s Command Line
+- Xcode command-line tools (`xcode-select --install`)
 
 ``` bash
 brew install vulkan-loader vulkan-tools
@@ -176,6 +189,9 @@ brew install vulkan-loader vulkan-tools
 ``` bash
 sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tools shaderc
 ```
+
+shaderc is only needed to recompile the shaders; the precompiled ones
+are shipped with the library.
 
 #### Debian/Ubuntu
 
@@ -228,7 +244,7 @@ environments, or on different architectures, they may cause problems on
 your PC or any other machine.
 
 > In case you get an error when installing the distributed packages, try
-> changing the name to **mlx-2.2-py3-none-any.whl**.
+> changing the name to **mlx-2.4-py3-none-any.whl**.
 
 ### Install the .whl
 
@@ -251,7 +267,7 @@ source .venv/bin/activate.fish
 And install the package:
 
 ``` bash
-pip install mlx_CLXV-X.X-py3-none-any.whl
+pip install mlx-X.X-py3-none-any.whl
 ```
 
 > Tip: Do you find virtual environments confusing? Try uv, a version and
@@ -304,10 +320,51 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
+> This first example never quits on its own: it runs until you stop it.
+> While `mlx_loop()` is running, Python can’t catch `Ctrl-C`, so press
+> `Ctrl-\` to kill the program. If you’d rather quit gracefully, the
+> next example shows how.
+
+#### A simple game loop
+
+When the program has no pending events, MiniLibX calls the function
+registered with **mlx_loop_hook**(); this makes it the right place to
+redraw the scene once per frame. The loop keeps running until
+**mlx_loop_exit**() is called, for example from a key callback. The key
+callback receives the keycode and the user parameter, while the loop
+callback only receives the user parameter.
+
+``` python
+from mlx import Mlx
+
+m = Mlx()
+mlx_ptr = m.mlx_init()
+if mlx_ptr is None:
+    raise RuntimeError("mlx_init() failed")
+win_ptr = m.mlx_new_window(mlx_ptr, 640, 480, "Game loop")
+
+
+def mykey(keynum, param):
+    if keynum == 32:  # space
+        m.mlx_loop_exit(mlx_ptr)
+
+
+def render(param):
+    m.mlx_clear_window(mlx_ptr, win_ptr)
+    m.mlx_string_put(mlx_ptr, win_ptr, 10, 10, 255, "Hello PyMlx!")
+    return 0
+
+
+m.mlx_key_hook(win_ptr, mykey, None)
+m.mlx_loop_hook(mlx_ptr, render, None)
+m.mlx_loop(mlx_ptr)
+m.mlx_release(mlx_ptr)
+```
+
 ## What is the MLX Wrapper? And why is it so important?
 
 Although it may seem surprising, when we call
-`mlx_new_window(mlx_ptr, 200, 200, “test”)` from the Python script we
+`mlx_new_window(mlx_ptr, 200, 200, "test")` from the Python script we
 just wrote, we aren’t actually communicating with MinilibX yet. This
 library is written in C and only works in C, which in turn only accepts
 calls from other C functions—so that means no Python, right?
@@ -334,20 +391,22 @@ Let’s take a closer look at how it works.
 ### How does the wrapper work?
 
 When an instance of the Mlx class is created, the first thing it does is
-construct the path to the C library called libmlx.so.
+construct the path to the C library that ships alongside the package: it
+is called libmlx.dylib on macOS and libmlx.so everywhere else.
 
 ``` python
 def __init__(self):
     module_dir = os.path.dirname(os.path.abspath(__file__))
-    self.so_file = os.path.join(module_dir, "libmlx.so")
+    libname = "libmlx.dylib" if sys.platform == "darwin" else "libmlx.so"
+    self.so_file = os.path.join(module_dir, libname)
     # ...
 ```
 
 - \_\_file\_\_ is a special Python variable that contains the path to
   the file where this code is executed.
 
-- os.path.dirname extracts the path from **file** and uses os.path.join
-  to create the path to the library.
+- os.path.dirname extracts the path from `__file__` and uses
+  os.path.join to create the path to the library.
 
 It then declares the mlx_func variable, which acts as a bridge between
 Python and C. Using the CDLL function from Python’s ctypes module, it
@@ -383,8 +442,6 @@ returns.
 ### Synopsis
 
 ``` python
-from mlx import Mlx
-
 def mlx_init() -> int | None: # void *
 
 def mlx_release(mlx_ptr: int | None) -> int:
@@ -399,46 +456,46 @@ messages from the display, like “I want to draw a yellow pixel in this
 window” or “did the user hit a key?”.
 
 The mlx_init function will create this connection. No parameters are
-needed, ant it will return a void \* identifier, used for further calls
-to the library routines. The mlx_release function can be used at the end
-of the program to disconnect from the graphic system and release
-resources.
+needed, and it will return an `int` (void \*), used for further calls to
+the library routines.
+
+The mlx_release function can be used at the end of the program to
+disconnect from the graphic system and release resources.
 
 If **mlx_init()** fails to set up the connection to the display, it will
-return None.
+return `None`.
 
 ### Return values
 
 If **mlx_init()** set up the connection to the display correctly, it
 will return an **int as a pointer**; otherwise, it returns **None**.
 
-## Managing windows: mlx_new_window(), mlx_clear_window, mlx_destroy_window
+## Managing windows: mlx_new_window(), mlx_clear_window(), mlx_destroy_window()
 
 ### Synopsis
 
 ``` python
-    def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
+def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
 
-    def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
+def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 
-    def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
+def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 ```
 
 ### Description
 
-The **mlx_new_window** () function creates a new window on the screen,
+The **mlx_new_window**() function creates a new window on the screen,
 using the *width* and *height* parameters to determine its size, and
 *title* as the text that should be displayed in the window's title bar.
 
 The *mlx_ptr* parameter is the connection identifier returned by
-**mlx_init** () (see the **mlx** man page). **mlx_new_window** ()
-returns a *void \** window identifier that can be used by other MiniLibX
-calls.
+**mlx_init**() (see the **mlx** man page). **mlx_new_window**() returns
+a *void \** window identifier that can be used by other MiniLibX calls.
 
 Note that the MiniLibX can handle an arbitrary number of separate
 windows.
 
-**mlx_clear_window** () and **mlx_destroy_window** () respectively clear
+**mlx_clear_window**() and **mlx_destroy_window**() respectively clear
 (in black) and destroy the given window. They both have the same
 parameters: *mlx_ptr* is the screen connection identifier, and *win_ptr*
 is a window identifier.
@@ -446,10 +503,10 @@ is a window identifier.
 ### Return values
 
 If **mlx_new_window()** fails to create a new window (whatever the
-reason), it will return NULL, otherwise a non-null pointer is returned
-as a window identifier.
+reason), it will return None, otherwise a non-null pointer(integer) is
+returned as a window identifier.
 
-**mlx_clear_window** and **mlx_destroy_window** return nothing.
+**mlx_clear_window**() and **mlx_destroy_window**() return 0.
 
 ## Drawing inside windows: mlx_pixel_put(), mlx_string_put()
 
@@ -463,7 +520,7 @@ as a window identifier.
 
 ### Description
 
-The **mlx_pixel_put** () function draws a defined pixel in the window
+The **mlx_pixel_put**() function draws a defined pixel in the window
 *win_ptr* using the ( *x* , *y* ) coordinates, and the specified
 *color*.
 
@@ -471,7 +528,7 @@ The origin (0,0) is the upper left corner of the window, the x and y
 axis respectively pointing right and down. The connection identifier,
 *mlx_ptr* , is needed (see the **mlx** man page).
 
-Parameters for **mlx_string_put** () have the same meaning. Instead of a
+Parameters for **mlx_string_put**() have the same meaning. Instead of a
 simple pixel, the specified *string* will be displayed at ( *x* , *y* ).
 
 Both functions will discard any display outside the window. This makes
@@ -484,7 +541,7 @@ needs to be encoded in this integer, following a defined scheme. All
 displayable colours can be split in 3 basic colours: red, green and
 blue. Three associated values, in the 0-255 range, represent how much of
 each colour is mixed up to create the original colour. The fourth byte
-represent transparency, where 0 is fully transparent and 255 opaque.
+represents transparency, where 0 is fully transparent and 255 opaque.
 
 These four values must be set inside the unsigned integer to display the
 right colour. The bytes of this integer are filled as shown in the
@@ -520,42 +577,38 @@ integer on a little endian machine.
 
 ### Description
 
-**mlx_new_image** () creates a new image in memory. It returns an *int
+**mlx_new_image**() creates a new image in memory. It returns an *int
 pointer* needed to manipulate this image later. It only needs the size
 of the image to be created, using the *width* and *height* parameters,
 and the *mlx_ptr* connection identifier.
 
 The user can draw inside the image (see below), and can dump the image
 inside a specified window at any time to display it on the screen. This
-is done using **mlx_put_image_to_window** (). Three identifiers are
+is done using **mlx_put_image_to_window**(). Three identifiers are
 needed here, for the connection to the display, the window to use, and
 the image (respectively *mlx_ptr* , *win_ptr* and *img_ptr* ). The (
 *x*, *y* ) coordinates define where the image should be placed in the
 window.
 
-**mlx_get_data_addr** () returns information about the created image,
+**mlx_get_data_addr**() returns information about the created image,
 allowing a user to modify it later. The *img_ptr* parameter specifies
-the image to use. The three next parameters should be the addresses of
-three different valid unsigned integers. *bits_per_pixel* will be filled
-with the number of bits needed to represent a pixel colour (also called
-the depth of the image). *size_line* is the number of bytes used to
-store one line of the image in memory. This information is needed to
-move from one line to another in the image. *format* tells you how each
-pixel colour in the image is structured.
+the image to use. It returns the tuple ( *pixels* , *bits_per_pixel* ,
+*size_line* , *format* ). *pixels* is a writable memoryview over the
+image buffer (bytes: *height* \* *size_line* ). *bits_per_pixel* is the
+number of bits needed to represent a pixel colour (also called the depth
+of the image). *size_line* is the number of bytes used to store one line
+of the image in memory (the stride); this information is needed to move
+from one line to another in the image. *format* tells you how each pixel
+colour in the image is structured.
 
-Currently only 2 values aredefined:
+Currently only 2 values are defined:
 
-0 means format B8G8R8A8
+- 0 means format B8G8R8A8
+- 1 means format A8R8G8B8
 
-1 means format A8R8G8B8
-
-**mlx_get_data_addr** returns an *int pointer* to the address address
-that represents the beginning of the memory area where the image is
-stored. From this address, the first *bits_per_pixel* bits represent the
-colour of the first pixel in the first line of the image. The second
-group of *bits_per_pixel* bits represent the second pixel of the first
-line, and so on. Add *size_line* to the address to get the beginning of
-the second line. You can reach any pixels of the image that way.
+The offset of a pixel is computed as
+`offset = y * size_line + x * (bits_per_pixel // 8)`; the following 4
+bytes are the colour of that pixel.
 
 **mlx_destroy_image** destroys the given image ( *img_ptr* ).
 
@@ -569,13 +622,26 @@ always matches the hardware capabilities on modern computers.
 Keep in mind that packing the 4-byte ARGB into an unsigned int depends
 on the local computer’s endian. Adjust your code accordingly.
 
+You can paint a pixel by writing directly into the writable memoryview
+returned by **mlx_get_data_addr**():
+
+``` python
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+x, y = 10, 20
+offset = y * size_line + x * (bpp // 8)
+# format 0 (B8G8R8A8): blue, green, red, alpha
+pixels[offset:offset + 4] = bytes([255, 0, 0, 255])
+```
+
+Note that the byte order depends on the *format* returned, consistent
+with the endian note above.
+
 ### XPM and PNG images
 
-The **mlx_xpm_file_to_image** () and **mlx_png_file_to_image** ()
+The **mlx_xpm_file_to_image**() and **mlx_png_file_to_image**()
 functions will create a new image the same way. They will fill it using
-the specified *xpm_data* or *filename* , depending on which function is
-used. Note that MiniLibX does not use the standard Xpm and PNG libraries
-to deal with xpm and PNG images.
+the specified *filename* . Note that MiniLibX does not use the standard
+Xpm and PNG libraries to deal with xpm and PNG images.
 
 You may not be able to read all types of xpm and PNG images. It however
 handles transparency.
@@ -585,13 +651,13 @@ considered not useful in this context.
 
 ### Return values
 
-The three functions that create images, **mlx_new_image()**,
-**mlx_xpm_file_to_image()** and **mlx_png_file_to_image()** , will
-return NULL if an error occurs.
+**mlx_new_image()** returns None if an error occurs, otherwise a
+non-null integer as an image identifier. **mlx_xpm_file_to_image()** and
+**mlx_png_file_to_image()** return a tuple ( *image* , *width* ,
+*height* ): *image* is None on error, otherwise a non-null integer image
+identifier.
 
-Otherwise they return a non-null pointer as an image identifier.
-
-## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_hook()
+## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_exit()
 
 ### Synopsis
 
@@ -606,6 +672,8 @@ Otherwise they return a non-null pointer as an image identifier.
 
     def mlx_loop_hook(mlx_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
+    def mlx_hook(win_ptr: int | None, x_event: int, x_mask: int, callback: Callable[Any] | None, param: Any) -> int:
+
     def mlx_loop_exit(mlx_ptr: int | None) -> int:
 ```
 
@@ -619,7 +687,7 @@ the mouse.
 
 ### Description
 
-To receive events, you must use **mlx_loop** (). This function never
+To receive events, you must use **mlx_loop**(). This function never
 returns, unless **mlx_loop_exit** is called. It is an infinite loop that
 waits for an event, and then calls a user-defined function associated
 with this event. A single parameter is needed, the connection identifier
@@ -636,15 +704,15 @@ You can assign different functions to the three following events:
 
 Each window can define a different function for the same event.
 
-The three functions **mlx_key_hook** (), **mlx_mouse_hook** () and
-**mlx_expose_hook** () work exactly the same way. *callback* is a
+The three functions **mlx_key_hook**(), **mlx_mouse_hook**() and
+**mlx_expose_hook**() work exactly the same way. *callback* is a
 reference to the function that is invoked when an event occurs. This
 assignment is specific to the window defined by the *win_ptr*
 identifier. The *param* address will be passed back to your function
 every time it is called, and should be used to store the parameters it
 might need.
 
-The syntax for the **mlx_loop_hook** () function is similar to the
+The syntax for the **mlx_loop_hook**() function is similar to the
 previous ones, but the given function will be called when no event
 occurs, and is not bound to a specific window.
 
@@ -665,14 +733,34 @@ MiniLibX.
 *param* is the address specified in the mlx\_\*\_hook calls. This
 address is never used nor modified by the MiniLibX. On key and mouse
 events, additional information is passed: *keycode* tells you which key
-is pressed (just try to find out :) ), ( *x* , *y* ) are the coordinates
-of the mouse click in the window, and *button* tells you which mouse
-button was pressed.
+was released (we list the common keycodes just below), ( *x* , *y* ) are
+the coordinates of the mouse click in the window, and *button* tells you
+which mouse button was pressed.
+
+### Callbacks in Python
+
+| Hook            | Callback signature                  |
+|-----------------|-------------------------------------|
+| mlx_key_hook    | key_callback(keycode, param)        |
+| mlx_mouse_hook  | mouse_callback(button, x, y, param) |
+| mlx_expose_hook | expose_callback(param)              |
+| mlx_loop_hook   | loop_callback(param)                |
+
+The *param* argument is the same Python object you passed when
+registering the hook: the wrapper keeps it and gives it back to you on
+every call. The return value of the callback is ignored. To remove a
+hook, call the same function again with `None` as the callback.
+
+Keycodes follow the X11 keysym convention: the space bar is 32, and
+special keys such as Escape (0xFF1B), Return (0xFF0D) or the arrow keys
+(0xFF51-0xFF54) keep the same values on the three platforms (XCB,
+Wayland via xkb, macOS via a translation table). The package does not
+define key constants, so print the *keynum* to discover the values.
 
 ### Going further with events
 
-The MiniLibX provides a much generic access to other available events.
-The *mlx.h* include define **mlx_hook()** in the same manner
+The MiniLibX provides a much more generic access to other available
+events. The *mlx.h* include defines **mlx_hook()** in the same manner
 mlx\_\*\_hook functions work. The event and mask values will be taken
 from the historical X11 include file "X.h". Some Wayland and macOS
 events are mapped to these values when it makes sense, and the mask may
@@ -680,6 +768,14 @@ not be used in some configurations.
 
 See source code of the MiniLibX to find out how it will call your own
 function for a specific event.
+
+The Python wrapper also exposes **mlx_hook**(*win_ptr* , *x_event* ,
+*x_mask* , *callback* , *param* ). The signature of the callback depends
+on *x_event* : key events \[2, 3\] receive ( *keycode* , *param* ),
+mouse events \[4, 5\] receive ( *button* , *x* , *y* , *param* ), motion
+events \[6\] receive ( *x* , *y* , *param* ), and every other event
+receives only ( *param* ,). The mask can be ignored in some
+configurations.
 
 ## Extra functions
 
@@ -690,15 +786,15 @@ function for a specific event.
 
     def mlx_mouse_show(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_move(mlx_ptr: int | None, x: int, y: int) -> int:
+    def mlx_mouse_move(win_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple(int, int, int): # (status, x, y)
+    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple[int, int, int]: # (status, x, y)
 
     def mlx_do_key_autorepeatoff(mlx_ptr: int | None) -> int:
 
     def mlx_do_key_autorepeaton(mlx_ptr: int | None) -> int:
 
-    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple(int, int, int): # (status, width, height)
+    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple[int, int, int]: # (status, width, height)
 
     def mlx_do_sync(mlx_ptr: int | None) -> int:
 
@@ -710,16 +806,22 @@ function for a specific event.
 It is possible to show / hide the mouse, and get its current position
 without user click or force its position inside a window.
 
+**mlx_mouse_get_pos**() returns ( *status* , *x* , *y* ): *status* is 0
+on success and -1 on failure.
+
 ### Keyboard extra functions
 
 The auto-repeat mode of the keyboard can be controlled. By default,
-auto-repeat is on: multiple “key pressed” events are generated every
-second until the key is released.
+auto-repeat is on: while a key is held, multiple key events are
+generated until the key is released.
 
 ### Screen extra function
 
 It is possible to retrieve the size of the current screen, even before
 the first window is created.
+
+**mlx_get_screen_size**() returns ( *status* , *width* , *height* ):
+*status* is always 0.
 
 ### Flush and sync functions
 
@@ -729,9 +831,14 @@ On return, there is no guarantee that your commands have been processed.
 
 With **mlx_sync** you have more detailed control over the
 synchronisation mechanisms. Three different commands are available:
-SYNC_IMAGE_WRITABLE = 1 SYNC_WIN_FLUSH = 2 SYNC_WIN_COMPLETED = 3 The
-third parameter *param* can be either the image identifier or the window
-identifier.
+
+- Mlx.SYNC_IMAGE_WRITABLE = 1
+- Mlx.SYNC_WIN_FLUSH = 2
+- Mlx.SYNC_WIN_COMPLETED = 3
+
+The third parameter *param* can be either the image identifier or the
+window identifier. Note that these are class attributes of **Mlx** (not
+importable at module level).
 
 ## Got any suggestions?
 

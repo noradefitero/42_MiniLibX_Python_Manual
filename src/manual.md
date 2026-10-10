@@ -62,10 +62,9 @@ A network connection must be established between these two entities to send
 drawing orders (from the software to the X-Server), and keyboard/mouse events
 (from the X-Server to the software).
 
-![Shows an scheme of an example using XWindow](media/fig3.jpeg)
-Image from the [LPI learning material](https://learning.lpi.org/en/learning-materials/102-500/106/106.1/106.1_01/) (CC BY-NC-ND 4.0).
-
 Nowadays, most of the time, both run on the same computer.
+
+![Shows an scheme of an example using XWindow](media/fig3.jpg)
 
 #### Unix/Linux: Wayland, the modern graphical approach
 
