@@ -280,8 +280,6 @@ execute the function and return whatever the function returns.
 ### Synopsis
 
 ```python
-from mlx import Mlx
-
 def mlx_init() -> int | None: # void *
 
 def mlx_release(mlx_ptr: int | None) -> int:
@@ -294,13 +292,15 @@ the graphic and user sub-systems. Once this completed, you'll be able to use
 other MiniLibX functions to send and receive the messages from the display, like
 "I want to draw a yellow pixel in this window" or "did the user hit a key?".
 
-The mlx_init function will create this connection. No parameters are needed, ant
-it will return a void * identifier, used for further calls to the library
-routines. The mlx_release function can be used at the end of the program to
+The mlx_init function will create this connection. No parameters are needed, and
+it will return an `int` (void *), used for further calls to the library
+routines.
+
+The mlx_release function can be used at the end of the program to
 disconnect from the graphic system and release resources.
 
 If **mlx_init()** fails to set up the connection to the display, it will return
-None.
+`None`.
 
 ### Return values
 
@@ -312,26 +312,26 @@ an **int as a pointer**; otherwise, it returns **None**.
 ### Synopsis
 
 ```python
-    def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
+def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
 
-    def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
+def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 
-    def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
+def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 ```
 
 ### Description
 
-The **mlx_new_window** () function creates a new window on the screen, using the
+The **mlx_new_window**() function creates a new window on the screen, using the
 _width_ and _height_ parameters to determine its size, and _title_ as the text
 that should be displayed in the window\'s title bar.
 
 The _mlx_ptr_ parameter is the connection identifier returned by **mlx_init** ()
-(see the **mlx** man page). **mlx_new_window** () returns a _void \*_ window
+(see the **mlx** man page). **mlx_new_window**() returns a _void \*_ window
 identifier that can be used by other MiniLibX calls.
 
 Note that the MiniLibX can handle an arbitrary number of separate windows.
 
-**mlx_clear_window** () and **mlx_destroy_window** () respectively clear (in
+**mlx_clear_window**() and **mlx_destroy_window**() respectively clear (in
 black) and destroy the given window. They both have the same parameters:
 _mlx_ptr_ is the screen connection identifier, and _win_ptr_ is a window
 identifier.

@@ -386,9 +386,9 @@ returns.
 ``` python
 from mlx import Mlx
 
-def mlx_init() -> int: # void *
+def mlx_init() -> int | None: # void *
 
-def mlx_release() -> int: # void *
+def mlx_release(mlx_ptr: int | None) -> int:
 ```
 
 ### Description
@@ -418,11 +418,11 @@ will return an **int as a pointer**; otherwise, it returns **None**.
 ### Synopsis
 
 ``` python
-    def mlx_new_window(mlx_ptr: int, width: int, height: int, title: str ) -> int: # void *
+    def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
 
-    def mlx_clear_window(mlx_ptr: int, win_ptr: int) -> int:
+    def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 
-    def mlx_destroy_window(mlx_ptr: int, win_ptr: int ) -> int:
+    def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 ```
 
 ### Description
@@ -457,9 +457,9 @@ as a window identifier.
 ### Synopsis
 
 ``` python
-    def mlx_pixel_put(mlx_ptr: int, win_ptr: int, x: int, y: int, color: int) -> int:
+    def mlx_pixel_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int) -> int:
 
-    def mlx_string_put(mlx_ptr: int, win_ptr: int, x: int, y: int, color: int, string: str) -> int:
+    def mlx_string_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int, string: str) -> int:
 ```
 
 ### Description
@@ -504,17 +504,17 @@ integer on a little endian machine.
 ### Synopsis
 
 ``` python
-    def mlx_new_image(mlx_ptr: int, width: int, height: int) -> int: # void *
+    def mlx_new_image(mlx_ptr: int | None, width: int, height: int) -> int | None: # void *
 
-    def mlx_get_data_addr(img_ptr: int, bits_per_pixel: int, size_line: int, format: int) -> tuple[memoryview, int, int, int]:
+    def mlx_get_data_addr(img_ptr: int | None) -> Tuple[memoryview, int, int, int]: # (pixels, bits_per_pixel, size_line, format)
 
-    def mlx_put_image_to_window(mlx_ptr: int, win_ptr: int, img_ptr: int, x: int, y: int) -> int:
+    def mlx_put_image_to_window(mlx_ptr: int | None, win_ptr: int | None, img_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_xpm_file_to_image(mlx_ptr: int, filename: str) -> int: # void *
+    def mlx_xpm_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
 
-    def mlx_png_file_to_image(mlx_ptr: int, filename: str) -> int: # void *
+    def mlx_png_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
 
-    def mlx_destroy_image(mlx_ptr: int, img_ptr: int) -> int:
+    def mlx_destroy_image(mlx_ptr: int | None, img_ptr: int | None) -> int:
 ```
 
 ### Description
@@ -595,17 +595,17 @@ Otherwise they return a non-null pointer as an image identifier.
 ### Synopsis
 
 ``` python
-    def mlx_loop(mlx_ptr: int) -> int:
+    def mlx_loop(mlx_ptr: int | None) -> int:
 
-    def mlx_key_hook(win_ptr: int, callback: Callable[Any], param: Any) -> int:
+    def mlx_key_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
-    def mlx_mouse_hook(win_ptr: int, callback: Callable[Any], param: Any) -> int:
+    def mlx_mouse_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
-    def mlx_expose_hook(win_ptr: int, callback: Callable[Any], param: Any) -> int:
+    def mlx_expose_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
-    def mlx_loop_hook(mlx_ptr: int, callback: Callable[Any], param: Any) -> int:
+    def mlx_loop_hook(mlx_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
-    def mlx_loop_exit(mlx_ptr: int) -> None:
+    def mlx_loop_exit(mlx_ptr: int | None) -> int:
 ```
 
 ### Events
@@ -680,23 +680,23 @@ function for a specific event.
 ### Synopsis
 
 ``` python
-    def mlx_mouse_hide(mlx_ptr: int) -> int:
+    def mlx_mouse_hide(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_show(mlx_ptr: int) -> int:
+    def mlx_mouse_show(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_move(mlx_ptr: int, x: int, y: int) -> int:
+    def mlx_mouse_move(mlx_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_mouse_get_pos(win_ptr: int) -> tuple(int, int, int):
+    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple(int, int, int): # (status, x, y)
 
-    def mlx_do_key_autorepeatoff(mlx_ptr: int) -> int:
+    def mlx_do_key_autorepeatoff(mlx_ptr: int | None) -> int:
 
-    def mlx_do_key_autorepeaton(mlx_ptr: int) -> int:
+    def mlx_do_key_autorepeaton(mlx_ptr: int | None) -> int:
 
-    def mlx_get_screen_size(mlx_ptr: int) -> tuple(int, int, int):
+    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple(int, int, int): # (status, width, height)
 
-    def mlx_do_sync(mlx_ptr: int) -> int:
+    def mlx_do_sync(mlx_ptr: int | None) -> int:
 
-    def mlx_sync(mlx_ptr: int, cmd: int, img_or_win_ptr: int) -> int:
+    def mlx_sync(mlx_ptr: int | None, cmd: int, img_or_win_ptr: int | None) -> int:
 ```
 
 ### Mouse extra functions
