@@ -545,6 +545,8 @@ _image_ is None on error, otherwise a non-null integer image identifier.
 
     def mlx_loop_hook(mlx_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
 
+    def mlx_hook(win_ptr: int | None, x_event: int, x_mask: int, callback: Callable[Any] | None, param: Any) -> int:
+
     def mlx_loop_exit(mlx_ptr: int | None) -> int:
 ```
 
@@ -632,6 +634,13 @@ makes sense, and the mask may not be used in some configurations.
 
 See source code of the MiniLibX to find out how it will call your own function
 for a specific event.
+
+The Python wrapper also exposes **mlx_hook**(_win_ptr_ , _x_event_ , _x_mask_ ,
+_callback_ , _param_ ). The signature of the callback depends on _x_event_ :
+key events [2, 3] receive ( _keycode_ , _param_ ), mouse events [4, 5] receive
+( _button_ , _x_ , _y_ , _param_ ), motion events [6] receive ( _x_ , _y_ ,
+_param_ ), and every other event receives only ( _param_ ,). The mask can be
+ignored in some configurations.
 
 ## Extra functions
 
