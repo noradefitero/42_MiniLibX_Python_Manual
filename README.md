@@ -626,11 +626,14 @@ waits for an event, and then calls a user-defined function associated
 with this event. A single parameter is needed, the connection identifier
 *mlx_ptr*.
 
-You can assign different functions to the three following events: - A
-key is released - The mouse button is pressed - A part of the window
-should be re-drawn (this is called an “expose” event, and it is your
-program’s job to handle it in the Unix/Linux X11 environment, but at the
-opposite it never happens on Unix/Linux Wayland-Vulkan nor on MacOS).
+You can assign different functions to the three following events:
+
+- A key is released
+- The mouse button is pressed
+- A part of the window should be re-drawn (this is called an “expose”
+  event, and it is your program’s job to handle it in the Unix/Linux X11
+  environment, but at the opposite it never happens on Unix/Linux
+  Wayland-Vulkan nor on macOS).
 
 Each window can define a different function for the same event.
 
@@ -649,10 +652,12 @@ occurs, and is not bound to a specific window.
 When it catches an event, the MiniLibX calls the corresponding function
 with fixed parameters:
 
-      expose_hook(void *param);
-      key_hook(unsigned int keycode, void *param);
-      mouse_hook(unsigned int button, unsigned int x, unsigned int y, void *param);
-      loop_hook(void *param);
+``` c
+expose_hook(void *param);
+key_hook(unsigned int keycode, void *param);
+mouse_hook(unsigned int button, unsigned int x, unsigned int y, void *param);
+loop_hook(void *param);
+```
 
 These function names are arbitrary. They here are used to distinguish
 parameters according to the event. These functions are NOT part of the
