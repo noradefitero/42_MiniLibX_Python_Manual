@@ -302,16 +302,43 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
-## Behind the Scenes
+## What is the MLX Wrapper? And why is it so important?
+
+Although it may seem surprising, when we call
+`mlx_new_window(mlx_ptr, 200, 200, “test”)` from the Python script we
+just wrote, we aren’t actually communicating with MinilibX yet. This
+library is written in C and only works in C, which in turn only accepts
+calls from other C functions—so that means no Python, right?
+
+Okay, but what if we told the Python interpreter that every time we
+wanted to call a C function, it should take all the arguments and other
+data and load them into memory in a strictly typed manner—as if it were
+a C program—and call that C function as if it were a C program, then
+store the response in a variable as if it were C? Well, we’d be using a
+C program from within Python.
+
+Well, you’ve just discovered how the vast majority of large-scale
+programming projects work. Every language has its advantages and
+disadvantages, but with methods like this, we can use one language from
+within another, and thus take advantage of the best of each.
+
+That’s why what we’re actually using isn’t MinilibX itself, but rather
+the MinilibX Python wrapper—or, more precisely, a library full of
+functions that tell Python how to call other C functions and return the
+results to you.
+
+Let’s take a closer look at how it works.
+
+### How works the wrapper?
 
 When an instance of the Mlx class is created, the first thing it does is
 construct the path to the C library called libmlx.so.
 
 ``` python
 def __init__(self):
-  module_dir = os.path.dirname(os.path.abspath(__file__))
-  self.so_file = os.path.join(module_dir, "libmlx.so")
-  #...
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+    self.so_file = os.path.join(module_dir, "libmlx.so")
+    # ...
 ```
 
 - \_\_file\_\_ is a special Python variable that contains the path to
@@ -326,9 +353,9 @@ loads the library and calls the original functions.
 
 ``` python
 def __init__(self):
-  # ...
-  self.mlx_func = CDLL(self.so_file)
-  # ...
+    # ...
+    self.mlx_func = CDLL(self.so_file)
+    # ...
 ```
 
 For each C function available in the Python wrapper, there is a
@@ -336,8 +363,8 @@ declaration within the Mlx class:
 
 ``` python
 def mlx_init(self):
-  self.mlx_func.mlx_init.restype = c_void_p
-  return self.mlx_func.mlx_init()
+    self.mlx_func.mlx_init.restype = c_void_p
+    return self.mlx_func.mlx_init()
 ```
 
 You can see how it calls mlx_func.mlx_init(). This mlx_init() is already
