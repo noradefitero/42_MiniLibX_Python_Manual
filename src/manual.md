@@ -695,9 +695,15 @@ subsystems, ensuring nothing is cached on your software's side. On return, there
 is no guarantee that your commands have been processed.
 
 With **mlx_sync** you have more detailed control over the synchronisation
-mechanisms. Three different commands are available: SYNC_IMAGE_WRITABLE = 1
-SYNC_WIN_FLUSH = 2 SYNC_WIN_COMPLETED = 3 The third parameter _param_ can be
-either the image identifier or the window identifier.
+mechanisms. Three different commands are available:
+
+- Mlx.SYNC_IMAGE_WRITABLE = 1
+- Mlx.SYNC_WIN_FLUSH = 2
+- Mlx.SYNC_WIN_COMPLETED = 3
+
+The third parameter _param_ can be either the image identifier or the window
+identifier. Note that these are class attributes of **Mlx** (not importable at
+module level).
 
 ## Got any suggestions?
 
