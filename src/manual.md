@@ -46,9 +46,9 @@ servers manage windows and handle user input.
 
 #### Unix/Linux: Historical X-Window concept
 
-The X Window System is a software stack that is used to display text and graphics on a screen. The overall look and design of an X client is not dictated by the X Window System, but is instead handled by each individual X client, a window manager (e.g. Window Maker, Tab Window Manager), or a complete desktop environment such as KDE, GNOME, or Xfce.
+The X Window System, often called X11, is the software layer that draws text and graphics on the screen. X does not decide how applications look: that is the job of each X client, of a window manager such as Window Maker or Tab Window Manager, or of a complete desktop environment like KDE, GNOME or Xfce.
 
-The X Window System is cross-platform and runs on various operating systems such as Linux, the BSDs, Solaris and other Unix-like systems. There are also implementations available for Apple’s macOS and Microsoft Windows.
+X is cross-platform: Linux, the BSDs, Solaris and other Unix-like systems all support it, and implementations exist for Apple’s macOS and Microsoft Windows as well.
 
 It is based on two main parts:
 
@@ -63,7 +63,7 @@ drawing orders (from the software to the X-Server), and keyboard/mouse events
 (from the X-Server to the software).
 
 ![Shows an scheme of an example using XWindow](media/fig3.jpeg)
-Text and image from the [LPI learning material](https://learning.lpi.org/en/learning-materials/102-500/106/106.1/106.1_01/) (CC BY-NC-ND 4.0).
+Image from the [LPI learning material](https://learning.lpi.org/en/learning-materials/102-500/106/106.1/106.1_01/) (CC BY-NC-ND 4.0).
 
 Nowadays, most of the time, both run on the same computer.
 
