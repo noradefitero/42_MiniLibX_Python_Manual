@@ -598,14 +598,34 @@ according to the event. These functions are NOT part of the MiniLibX.
 
 _param_ is the address specified in the mlx\_\*\_hook calls. This address is
 never used nor modified by the MiniLibX. On key and mouse events, additional
-information is passed: _keycode_ tells you which key is pressed (just try to
-find out :) ), ( _x_ , _y_ ) are the coordinates of the mouse click in the
-window, and _button_ tells you which mouse button was pressed.
+information is passed: _keycode_ tells you which key was released (we list the
+common keycodes just below), ( _x_ , _y_ ) are the coordinates of the mouse
+click in the window, and _button_ tells you which mouse button was pressed.
+
+### Callbacks in Python
+
+| Hook            | Callback signature                  |
+| --------------- | ----------------------------------- |
+| mlx_key_hook    | key_callback(keycode, param)        |
+| mlx_mouse_hook  | mouse_callback(button, x, y, param) |
+| mlx_expose_hook | expose_callback(param)              |
+| mlx_loop_hook   | loop_callback(param)                |
+
+The _param_ argument is the same Python object you passed when registering the
+hook: the wrapper keeps it and gives it back to you on every call. The return
+value of the callback is ignored. To remove a hook, call the same function again
+with `None` as the callback.
+
+Keycodes follow the X11 keysym convention: the space bar is 32, and special keys
+such as Escape (0xFF1B), Return (0xFF0D) or the arrow keys (0xFF51-0xFF54) keep
+the same values on the three platforms (XCB, Wayland via xkb, macOS via a
+translation table). The package does not define key constants, so print the
+_keynum_ to discover the values.
 
 ### Going further with events
 
-The MiniLibX provides a much generic access to other available events. The
-_mlx.h_ include define **mlx_hook()** in the same manner mlx\_\*\_hook functions
+The MiniLibX provides a much more generic access to other available events. The
+_mlx.h_ include defines **mlx_hook()** in the same manner mlx\_\*\_hook functions
 work. The event and mask values will be taken from the historical X11 include
 file \"X.h\". Some Wayland and macOS events are mapped to these values when it
 makes sense, and the mask may not be used in some configurations.
