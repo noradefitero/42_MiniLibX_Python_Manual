@@ -380,10 +380,10 @@ identifier.
 ### Return values
 
 If **mlx_new_window()** fails to create a new window (whatever the reason), it
-will return NULL, otherwise a non-null pointer is returned as a window
+will return None, otherwise a non-null pointer(integer) is returned as a window
 identifier.
 
-**mlx_clear_window** and **mlx_destroy_window** return nothing.
+**mlx_clear_window**() and **mlx_destroy_window**() return 0.
 
 ## Drawing inside windows: mlx_pixel_put(), mlx_string_put()
 
