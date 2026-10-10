@@ -229,7 +229,7 @@ That’s why what we’re actually using isn’t MinilibX itself, but rather the
 
 Let’s take a closer look at how it works.
 
-### How works the wrapper?
+### How does the wrapper work?
 
 When an instance of the Mlx class is created, the first thing it does is
 construct the path to the C library called libmlx.so.

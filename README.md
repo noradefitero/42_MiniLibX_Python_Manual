@@ -38,7 +38,7 @@ to the native MiniLibX library.
   - [Example of use](#example-of-use)
 - [What is the MLX Wrapper? And why is it so
   important?](#what-is-the-mlx-wrapper-and-why-is-it-so-important)
-  - [How works the wrapper?](#how-works-the-wrapper)
+  - [How does the wrapper work?](#how-does-the-wrapper-work)
 - [Initialization and cleanup: mlx_init(),
   mlx_release()](#initialization-and-cleanup-mlx_init-mlx_release)
   - [Synopsis](#synopsis)
@@ -332,7 +332,7 @@ results to you.
 
 Let’s take a closer look at how it works.
 
-### How works the wrapper?
+### How does the wrapper work?
 
 When an instance of the Mlx class is created, the first thing it does is
 construct the path to the C library called libmlx.so.
