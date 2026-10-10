@@ -74,9 +74,9 @@ applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol
 ensures communication with the compositor program that manages the various
 windows on screen and the user input events. For your own application:
 
-- The Vulkan or OpenGL library allow you to directly draw any content into your
+- The Vulkan or OpenGL library allows you to directly draw any content into your
   window.
-- The Wayland compositor handles the place of your window on screen and send you
+- The Wayland compositor handles the place of your window on screen and sends you
   back the keyboard and mouse inputs from the user.
 
 Unfortunately, this gain of graphical power through GPU access removes the
