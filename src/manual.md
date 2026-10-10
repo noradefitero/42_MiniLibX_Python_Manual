@@ -152,7 +152,7 @@ On the 42 intranet, in the Python projects that use MLX (a_maze_ing, etc.), you�
 These can be used as a fallback if you’ve had trouble compiling MinilibX, but it’s not recommended to use them as your primary method, because since they were compiled on other computers, in different environments, or on different architectures, they may cause problems on your PC or any other machine.
 
 > In case you get an error when installing the distributed packages, try changing
-> the name to **mlx-2.2-py3-none-any.whl**.
+> the name to **mlx-2.4-py3-none-any.whl**.
 
 ### Install the .whl
 
@@ -175,7 +175,7 @@ source .venv/bin/activate.fish
 And install the package:
 
 ```bash
-pip install mlx_CLXV-X.X-py3-none-any.whl
+pip install mlx-X.X-py3-none-any.whl
 ```
 
 > Tip: Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
