@@ -495,11 +495,25 @@ hardware capabilities on modern computers.
 Keep in mind that packing the 4-byte ARGB into an unsigned int depends on the
 local computer's endian. Adjust your code accordingly.
 
+You can paint a pixel by writing directly into the writable memoryview returned
+by **mlx_get_data_addr**():
+
+```python
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+x, y = 10, 20
+offset = y * size_line + x * (bpp // 8)
+# format 0 (B8G8R8A8): blue, green, red, alpha
+pixels[offset:offset + 4] = bytes([255, 0, 0, 255])
+```
+
+Note that the byte order depends on the _format_ returned, consistent with the
+endian note above.
+
 ### XPM and PNG images
 
-The **mlx_xpm_file_to_image** () and **mlx_png_file_to_image** () functions will
+The **mlx_xpm_file_to_image**() and **mlx_png_file_to_image**() functions will
 create a new image the same way. They will fill it using the specified
-_xpm_data_ or _filename_ , depending on which function is used. Note that
+_filename_ . Note that
 MiniLibX does not use the standard Xpm and PNG libraries to deal with xpm and
 PNG images.
 
