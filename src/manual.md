@@ -11,6 +11,7 @@ abstract: >
 author: "Nora de Fitero Teijeira (noradefitero)"
 titlepage-logo: "media/42_MiniLibX_Python_Manual.jpg"
 logo-width: 300px
+lof: true
 acknowledgements: >
   The original MiniLibX documentation was created by Olivier Crouzet under the
   MIT license. This is a derivative work based on his work, created on a
@@ -177,7 +178,8 @@ And install the package:
 pip install mlx-X.X-py3-none-any.whl
 ```
 
-> Tip: Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
+> [!TIP]
+> Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
 
 ![Chart with benchmark results. From uv's docs](media/fig2.svg)
 
@@ -220,6 +222,7 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
+> [!IMPORTANT]
 > This first example never quits on its own: it runs until you stop it. While
 > `mlx_loop()` is running, Python can't catch `Ctrl-C`, so press `Ctrl-\` to
 > kill the program. If you'd rather quit gracefully, the next example shows how.
@@ -266,6 +269,8 @@ Well, you’ve just discovered how the vast majority of large-scale programming 
 That’s why what we’re actually using isn’t MinilibX itself, but rather the MinilibX Python wrapper—or, more precisely, a library full of functions that tell Python how to call other C functions and return the results to you.
 
 Let’s take a closer look at how it works.
+
+![The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.](media/diagram-python-c-bridge.svg)
 
 ### How does the wrapper work?
 

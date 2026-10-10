@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="946" height="180" viewBox="0 0 946 180" role="img" aria-label="The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.">
+  <rect width="100%" height="100%" fill="#FFFFFF" />
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#374151" />
+    </marker>
+  </defs>
+  <rect x="50" y="50" width="150" height="80" rx="8" ry="8" fill="#306998" stroke="#374151" stroke-width="2" />
+  <text x="125" y="83" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14px" font-weight="600" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Python</text>
+  <text x="125" y="102" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11px" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">application</text>
+  <line x1="200" y1="90" x2="224" y2="90" stroke="#374151" stroke-width="2" marker-end="url(#arrowhead)" />
+  <rect x="224" y="50" width="150" height="80" rx="8" ry="8" fill="#6340AC" stroke="#374151" stroke-width="2" />
+  <text x="299" y="83" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14px" font-weight="600" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">Mlx class methods</text>
+  <text x="299" y="102" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11px" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">mlx_func wrapper</text>
+  <line x1="374" y1="90" x2="398" y2="90" stroke="#374151" stroke-width="2" marker-end="url(#arrowhead)" />
+  <rect x="398" y="50" width="150" height="80" rx="8" ry="8" fill="#10B981" stroke="#374151" stroke-width="2" />
+  <text x="473" y="83" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14px" font-weight="600" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">ctypes</text>
+  <text x="473" y="102" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11px" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">CDLL</text>
+  <line x1="548" y1="90" x2="572" y2="90" stroke="#374151" stroke-width="2" marker-end="url(#arrowhead)" />
+  <rect x="572" y="50" width="150" height="80" rx="8" ry="8" fill="#374151" stroke="#374151" stroke-width="2" />
+  <text x="647" y="83" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14px" font-weight="600" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">libmlx.dylib / .so</text>
+  <text x="647" y="102" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11px" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">C library</text>
+  <line x1="722" y1="90" x2="746" y2="90" stroke="#374151" stroke-width="2" marker-end="url(#arrowhead)" />
+  <rect x="746" y="50" width="150" height="80" rx="8" ry="8" fill="#DC2626" stroke="#374151" stroke-width="2" />
+  <text x="821" y="83" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14px" font-weight="600" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">OS graphics subsystem</text>
+  <text x="821" y="102" font-family="Source Sans Pro, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="11px" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="middle">display</text>
+</svg>

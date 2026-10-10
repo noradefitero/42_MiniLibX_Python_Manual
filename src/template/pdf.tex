@@ -664,6 +664,23 @@ $endif$
 \item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
 
 %
+% GFM-style alert callouts ([!NOTE], [!TIP], [!WARNING], [!IMPORTANT])
+%
+\definecolor{mlnote-border}{HTML}{4077C0}
+\definecolor{mlnote-bg}{HTML}{E8F2FC}
+\definecolor{mltip-border}{HTML}{10B981}
+\definecolor{mltip-bg}{HTML}{E6F9F0}
+\definecolor{mlwarning-border}{HTML}{F59E0B}
+\definecolor{mlwarning-bg}{HTML}{FFF8E6}
+\definecolor{mlimportant-border}{HTML}{DC2626}
+\definecolor{mlimportant-bg}{HTML}{FEE2E2}
+
+\newmdenv[linecolor=mlnote-border,backgroundcolor=mlnote-bg,linewidth=2pt,roundcorner=4pt,frametitle={Note},frametitlefont=\bfseries\color{mlnote-border},frametitlealignment=\raggedright,innertopmargin=10pt,innerbottommargin=10pt,innerleftmargin=12pt,innerrightmargin=12pt,skipabove=\parskip,skipbelow=\parskip]{mlnote}
+\newmdenv[linecolor=mltip-border,backgroundcolor=mltip-bg,linewidth=2pt,roundcorner=4pt,frametitle={Tip},frametitlefont=\bfseries\color{mltip-border},frametitlealignment=\raggedright,innertopmargin=10pt,innerbottommargin=10pt,innerleftmargin=12pt,innerrightmargin=12pt,skipabove=\parskip,skipbelow=\parskip]{mltip}
+\newmdenv[linecolor=mlwarning-border,backgroundcolor=mlwarning-bg,linewidth=2pt,roundcorner=4pt,frametitle={Warning},frametitlefont=\bfseries\color{mlwarning-border},frametitlealignment=\raggedright,innertopmargin=10pt,innerbottommargin=10pt,innerleftmargin=12pt,innerrightmargin=12pt,skipabove=\parskip,skipbelow=\parskip]{mlwarning}
+\newmdenv[linecolor=mlimportant-border,backgroundcolor=mlimportant-bg,linewidth=2pt,roundcorner=4pt,frametitle={Important},frametitlefont=\bfseries\color{mlimportant-border},frametitlealignment=\raggedright,innertopmargin=10pt,innerbottommargin=10pt,innerleftmargin=12pt,innerrightmargin=12pt,skipabove=\parskip,skipbelow=\parskip]{mlimportant}
+
+%
 % Source Sans Pro as the de­fault font fam­ily
 % Source Code Pro for monospace text
 %

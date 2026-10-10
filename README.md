@@ -34,7 +34,7 @@ to the native MiniLibX library.
     way)](#build-source-code-recommended-way)
   - [Get the compiled package from intra (not
     recommended)](#get-the-compiled-package-from-intra-not-recommended)
-  - [Install the .whl](#install-the-.whl)
+  - [Install the .whl](#install-the-whl)
   - [Example of use](#example-of-use)
 - [What is the MLX Wrapper? And why is it so
   important?](#what-is-the-mlx-wrapper-and-why-is-it-so-important)
@@ -84,7 +84,7 @@ to the native MiniLibX library.
 ## Introduction
 
 The MinilibX or MLX is a library written in C (we’ll come back to that)
-that provides a very simple API to the graphic capabilities. It’s
+that provides a very simple API to the graphic capabilities. It's
 designed to be easy enough for early stage coders that could not
 immediately use standard graphical libraries and windowing systems.
 
@@ -103,7 +103,7 @@ It provides:
 ### How a graphics server works
 
 This library interacts with the underlying graphics system of your
-operating system. Before diving into usage, it’s helpful to understand
+operating system. Before diving into usage, it's helpful to understand
 how graphics servers manage windows and handle user input.
 
 #### Unix/Linux: Historical X-Window concept
@@ -132,12 +132,9 @@ keyboard/mouse events (from the X-Server to the software).
 
 Nowadays, most of the time, both run on the same computer.
 
-<figure>
-<img src="media/fig3.jpg"
-alt="Shows an scheme of an example using XWindow" />
-<figcaption aria-hidden="true">Shows an scheme of an example using
-XWindow</figcaption>
-</figure>
+![Shows an scheme of an example using XWindow](media/fig3.jpg)
+
+*Figure 1: Shows an scheme of an example using XWindow*
 
 #### Unix/Linux: Wayland, the modern graphical approach
 
@@ -232,10 +229,9 @@ the repository: mlx-X.X-py3-none-any.whl
 On the 42 intranet, in the Python projects that use MLX (a_maze_ing,
 etc.), you’ll find a folder containing .whl files.
 
-<figure>
-<img src="media/fig1.jpg" alt="Screenshot of the folder" />
-<figcaption aria-hidden="true">Screenshot of the folder</figcaption>
-</figure>
+![Screenshot of the folder](media/fig1.jpg)
+
+*Figure 2: Screenshot of the folder*
 
 These can be used as a fallback if you’ve had trouble compiling
 MinilibX, but it’s not recommended to use them as your primary method,
@@ -270,17 +266,16 @@ And install the package:
 pip install mlx-X.X-py3-none-any.whl
 ```
 
-> Tip: Do you find virtual environments confusing? Try uv, a version and
+> [!TIP]
+> Do you find virtual environments confusing? Try uv, a version and
 > project manager written in Rust.
 
-<figure>
-<img src="media/fig2.svg"
-alt="Chart with benchmark results. From uv’s docs" />
-<figcaption aria-hidden="true">Chart with benchmark results. From uv’s
-docs</figcaption>
-</figure>
+![Chart with benchmark results. From uv's docs](media/fig2.svg)
 
-> More info in their documentation: <https://docs.astral.sh/uv/>
+*Figure 3: Chart with benchmark results. From uv's docs*
+
+> More info in their documentation:
+> [<https://docs.astral.sh/uv/>](https://docs.astral.sh/uv/)
 
 ### Example of use
 
@@ -320,9 +315,10 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
+> [!IMPORTANT]
 > This first example never quits on its own: it runs until you stop it.
-> While `mlx_loop()` is running, Python can’t catch `Ctrl-C`, so press
-> `Ctrl-\` to kill the program. If you’d rather quit gracefully, the
+> While `mlx_loop()` is running, Python can't catch `Ctrl-C`, so press
+> `Ctrl-\` to kill the program. If you'd rather quit gracefully, the
 > next example shows how.
 
 #### A simple game loop
@@ -388,6 +384,12 @@ results to you.
 
 Let’s take a closer look at how it works.
 
+![The Python wrapper bridges Python method calls to the C MiniLibX
+library through ctypes, which then talks to the OS graphics
+subsystem.](media/diagram-python-c-bridge.svg)
+
+*Figure 4: The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.*
+
 ### How does the wrapper work?
 
 When an instance of the Mlx class is created, the first thing it does is
@@ -409,7 +411,7 @@ def __init__(self):
   os.path.join to create the path to the library.
 
 It then declares the mlx_func variable, which acts as a bridge between
-Python and C. Using the CDLL function from Python’s ctypes module, it
+Python and C. Using the CDLL function from Python's ctypes module, it
 loads the library and calls the original functions.
 
 ``` python
@@ -451,9 +453,9 @@ def mlx_release(mlx_ptr: int | None) -> int:
 
 First of all, you need to initialize the connection between your
 software and the graphic and user sub-systems. Once this completed,
-you’ll be able to use other MiniLibX functions to send and receive the
-messages from the display, like “I want to draw a yellow pixel in this
-window” or “did the user hit a key?”.
+you'll be able to use other MiniLibX functions to send and receive the
+messages from the display, like "I want to draw a yellow pixel in this
+window" or "did the user hit a key?".
 
 The mlx_init function will create this connection. No parameters are
 needed, and it will return an `int` (void \*), used for further calls to
@@ -620,7 +622,7 @@ the way the user usually represents a colour, in the ARGB mode, almost
 always matches the hardware capabilities on modern computers.
 
 Keep in mind that packing the 4-byte ARGB into an unsigned int depends
-on the local computer’s endian. Adjust your code accordingly.
+on the local computer's endian. Adjust your code accordingly.
 
 You can paint a pixel by writing directly into the writable memoryview
 returned by **mlx_get_data_addr**():
@@ -682,7 +684,7 @@ identifier.
 The graphical system is bi-directional. On one hand, the program sends
 orders to the screen to display pixels, images, and so on. On the other
 hand, it can get information from the keyboard and mouse associated to
-the screen. To do so, the program receives “events” from the keyboard or
+the screen. To do so, the program receives "events" from the keyboard or
 the mouse.
 
 ### Description
@@ -697,8 +699,8 @@ You can assign different functions to the three following events:
 
 - A key is released
 - The mouse button is pressed
-- A part of the window should be re-drawn (this is called an “expose”
-  event, and it is your program’s job to handle it in the Unix/Linux X11
+- A part of the window should be re-drawn (this is called an "expose"
+  event, and it is your program's job to handle it in the Unix/Linux X11
   environment, but at the opposite it never happens on Unix/Linux
   Wayland-Vulkan nor on macOS).
 
@@ -826,7 +828,7 @@ the first window is created.
 ### Flush and sync functions
 
 The **mlx_do_sync** function will flush the pending commands to the
-graphic subsystems, ensuring nothing is cached on your software’s side.
+graphic subsystems, ensuring nothing is cached on your software's side.
 On return, there is no guarantee that your commands have been processed.
 
 With **mlx_sync** you have more detailed control over the
