@@ -211,7 +211,17 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
-## Behind the Scenes
+## What is the MLX Wrapper? And why is it so important?
+
+Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, “test”)` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right? Okay, but what if we told the Python interpreter that every time we wanted to call a C function, it should take all the arguments and other data and load them into memory in a strictly typed manner—as if it were a C program—and call that C function as if it were a C program, then store the response in a variable as if it were C? Well, we’d be using a C program from within Python.
+
+Well, you’ve just discovered how the vast majority of large-scale programming projects work. Every language has its advantages and disadvantages, but with methods like this, we can use one language from within another, and thus take advantage of the best of each.
+
+That’s why what we’re actually using isn’t MinilibX itself, but rather the MinilibX Python wrapper—or, more precisely, a library full of functions that tell Python how to call other C functions and return the results to you.
+
+Let’s take a closer look at how it works.
+
+### How works the wrapper?
 
 When an instance of the Mlx class is created, the first thing it does is
 construct the path to the C library called libmlx.so.
