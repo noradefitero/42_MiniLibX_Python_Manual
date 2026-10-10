@@ -17,16 +17,16 @@ acknowledgements: >
   non-profit basis with the aim of sharing knowledge among the 42 student
   community.
 
-    This derivative work is published under the MIT license by Nora de Fitero
-    Teijeira. Copies of the licenses can be found in the GitHub repository for
-    this documentation.
+  This derivative work is published under the MIT license by Nora de Fitero
+  Teijeira. Copies of the licenses can be found in the GitHub repository for
+  this documentation.
 ---
 
 <!-- markdownlint-disable MD013 MD024 -->
 
 ## Introduction
 
-The MinilibX or MLX is a C (we’ll discuss this later) library that provides a very simple API to the graphic capabilities. It's designed to be easy enough for early stage coders that could not immediately use standard graphical libraries and windowing systems.
+The MinilibX or MLX is a library written in C (we’ll come back to that) that provides a very simple API to the graphic capabilities. It's designed to be easy enough for early stage coders that could not immediately use standard graphical libraries and windowing systems.
 
 The set of features is limited, on purpose, and is not meant to be extended. The learners have to build more advanced features, hence developing their own coding skills.
 
