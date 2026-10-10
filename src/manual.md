@@ -525,13 +525,12 @@ considered not useful in this context.
 
 ### Return values
 
-The three functions that create images, **mlx_new_image()**,
-**mlx_xpm_file_to_image()** and **mlx_png_file_to_image()** , will return NULL
-if an error occurs.
+**mlx_new_image()** returns None if an error occurs, otherwise a non-null
+integer as an image identifier. **mlx_xpm_file_to_image()** and
+**mlx_png_file_to_image()** return a tuple ( _image_ , _width_ , _height_ ):
+_image_ is None on error, otherwise a non-null integer image identifier.
 
-Otherwise they return a non-null pointer as an image identifier.
-
-## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_hook()
+## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_exit()
 
 ### Synopsis
 
