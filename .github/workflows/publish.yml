@@ -17,7 +17,7 @@ jobs:
       - name: Install pandoc
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended
+          sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended librsvg2-bin
       - name: Make docs
         run: make all
       - name: Release MD and PDF
