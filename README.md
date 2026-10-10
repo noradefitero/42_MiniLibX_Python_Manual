@@ -25,14 +25,20 @@ original C API, keeping function names and behavior as close as possible
 to the native MiniLibX library.
 
 ## Table of Contents
+
 - [Introduction](#introduction)
   - [How a graphics server works](#how-a-graphics-server-works)
 - [Getting started](#getting-started)
-- [Clone the source code](#clone-the-source-code)
   - [Requirements](#requirements)
-  - [Installation](#installation)
+  - [Build source code (Recommended
+    way)](#build-source-code-recommended-way)
+  - [Get the compiled package from intra (not
+    recommended)](#get-the-compiled-package-from-intra-not-recommended)
+  - [Install the .whl](#install-the-.whl)
   - [Example of use](#example-of-use)
-- [Behind the Scenes](#behind-the-scenes)
+- [What is the MLX Wrapper? And why is it so
+  important?](#what-is-the-mlx-wrapper-and-why-is-it-so-important)
+  - [How works the wrapper?](#how-works-the-wrapper)
 - [Initialization and cleanup: mlx_init(),
   mlx_release()](#initialization-and-cleanup-mlx_init-mlx_release)
   - [Synopsis](#synopsis)
