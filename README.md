@@ -1,23 +1,22 @@
-<p align="center">
-    Get the PDF version of this documentation! <a href="README.pdf"><b>Download README.pdf</b></a>
+<!-- markdownlint-disable MD013 MD024 MD033 MD041 -->
+<p align='center'>
+    Get the PDF version of this documentation! <a href='https://github.com/dde-fite/42_MiniLibX_Python_Manual/releases'><b>Download manual.pdf</b></a>
 </p>
-<p align="center">
-<img align="center" src="media/42_MiniLibX_Python_Manual.jpg">
-    <h1 align="center">MiniLibX Python Manual</h1>
+<p align='center'>
+<img align='center' src='media/42_MiniLibX_Python_Manual.jpg' alt='MiniLibX
+Python Manual'>
+    <h1 align='center'>MiniLibX Python Manual</h1>
 </p>
 
-<p align="center">
-    The original MiniLibX documentation was created by Olivier Crouzet
-    under the MIT license. This is a derivative work based on his work,
-    created on a non-profit basis with the aim of sharing knowledge
-    among the 42 student community. This derivative work is published
-    under the MIT license by Nora de Fitero Teijeira. Copies of the
-    licenses can be found in the GitHub repository for this
-    documentation.
-
-</p>
+<div align='center'>
+    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/noradefitero/42_MiniLibX_Python_Manual/ci.yml'>
+    <img alt='Licence' src='https://img.shields.io/github/license/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='42 Network Badge' src='https://img.shields.io/badge/42%20Network-000000?&logo=42&logoColor=white'>
+</div>
 
 ## Abstract
+
 This documentation is a PORT of the ORIGINAL MiniLibX docs. It describes
 the Python package that provides access to the MiniLibX graphics
 library. It allows creating windows, drawing pixels, handling images,
