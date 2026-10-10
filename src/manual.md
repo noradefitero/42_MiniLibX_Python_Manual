@@ -1,21 +1,21 @@
 ---
 title: MiniLibX Python Manual
 abstract: >
-    This documentation is a PORT of the ORIGINAL MiniLibX docs.
+  This documentation is a PORT of the ORIGINAL MiniLibX docs.
 
-    It describes the Python package that provides access to the MiniLibX
-    graphics library. It allows creating windows, drawing pixels, handling
-    images, and capturing keyboard and mouse input through a thin wrapper over
-    the original C API, keeping function names and behavior as close as possible
-    to the native MiniLibX library.
+  It describes the Python package that provides access to the MiniLibX
+  graphics library. It allows creating windows, drawing pixels, handling
+  images, and capturing keyboard and mouse input through a thin wrapper over
+  the original C API, keeping function names and behavior as close as possible
+  to the native MiniLibX library.
 author: "Nora de Fitero Teijeira (noradefitero)"
 titlepage-logo: "media/42_MiniLibX_Python_Manual.jpg"
 logo-width: 300px
 acknowledgements: >
-    The original MiniLibX documentation was created by Olivier Crouzet under the
-    MIT license. This is a derivative work based on his work, created on a
-    non-profit basis with the aim of sharing knowledge among the 42 student
-    community.
+  The original MiniLibX documentation was created by Olivier Crouzet under the
+  MIT license. This is a derivative work based on his work, created on a
+  non-profit basis with the aim of sharing knowledge among the 42 student
+  community.
 
     This derivative work is published under the MIT license by Nora de Fitero
     Teijeira. Copies of the licenses can be found in the GitHub repository for
@@ -28,7 +28,7 @@ acknowledgements: >
 
 The MinilibX or MLX is a C (we’ll discuss this later) library that provides a very simple API to the graphic capabilities. It's designed to be easy enough for early stage coders that could not immediately use standard graphical libraries and windowing systems.
 
-The set of features is limited, on purpose, and is not meant to be extended. The learners have to build more advanced features, hence developping their own coding skills.
+The set of features is limited, on purpose, and is not meant to be extended. The learners have to build more advanced features, hence developing their own coding skills.
 
 It provides:
 
@@ -52,7 +52,7 @@ X is cross-platform: Linux, the BSDs, Solaris and other Unix-like systems all su
 
 It is based on two main parts:
 
-- On one side, your software wants to draw something on the screen and or get
+- On one side, your software wants to draw something on the screen and/or get
   keyboard & mouse entries.
 
 - On the other side, the X-Server manages the screen, keyboard and mouse (It is
@@ -71,7 +71,7 @@ Nowadays, most of the time, both run on the same computer.
 
 Modern computers come with a powerful GPU that is directly accessed by
 applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol
-ensure communication with the compositor program that manages the various
+ensures communication with the compositor program that manages the various
 windows on screen and the user input events. For your own application:
 
 - The Vulkan or OpenGL library allow you to directly draw any content into your
@@ -85,9 +85,9 @@ access a remote GPU and show its window on a remote display. But current
 software architectures are more likely based on a local display application that
 gets data in JSON through a web API.
 
-#### MacOS: Windows server and GPU
+#### MacOS: Window server and GPU
 
-Your software interacts directly with the Window server who handles the cohabitation on the screen with other software and the event system, and interacts with the GPU to handle all drawing commands.
+Your software interacts directly with the Window server that handles the cohabitation on the screen with other software and the event system, and interacts with the GPU to handle all drawing commands.
 
 ## Getting started
 
@@ -219,7 +219,7 @@ m.mlx_loop(mlx_ptr)
 
 ## What is the MLX Wrapper? And why is it so important?
 
-Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, “test”)` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right?
+Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, "test")` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right?
 
 Okay, but what if we told the Python interpreter that every time we wanted to call a C function, it should take all the arguments and other data and load them into memory in a strictly typed manner—as if it were a C program—and call that C function as if it were a C program, then store the response in a variable as if it were C? Well, we’d be using a C program from within Python.
 
@@ -325,7 +325,7 @@ The **mlx_new_window**() function creates a new window on the screen, using the
 _width_ and _height_ parameters to determine its size, and _title_ as the text
 that should be displayed in the window\'s title bar.
 
-The _mlx_ptr_ parameter is the connection identifier returned by **mlx_init** ()
+The _mlx_ptr_ parameter is the connection identifier returned by **mlx_init**()
 (see the **mlx** man page). **mlx_new_window**() returns a _void \*_ window
 identifier that can be used by other MiniLibX calls.
 
@@ -356,14 +356,14 @@ identifier.
 
 ### Description
 
-The **mlx_pixel_put** () function draws a defined pixel in the window _win_ptr_
+The **mlx_pixel_put**() function draws a defined pixel in the window _win_ptr_
 using the ( _x_ , _y_ ) coordinates, and the specified _color_.
 
 The origin (0,0) is the upper left corner of the window, the x and y axis
 respectively pointing right and down. The connection identifier, _mlx_ptr_ , is
 needed (see the **mlx** man page).
 
-Parameters for **mlx_string_put** () have the same meaning. Instead of a simple
+Parameters for **mlx_string_put**() have the same meaning. Instead of a simple
 pixel, the specified _string_ will be displayed at ( _x_ , _y_ ).
 
 Both functions will discard any display outside the window. This makes
@@ -375,8 +375,8 @@ The _color_ parameter has an unsigned integer type. The displayed colour needs
 to be encoded in this integer, following a defined scheme. All displayable
 colours can be split in 3 basic colours: red, green and blue. Three associated
 values, in the 0-255 range, represent how much of each colour is mixed up to
-create the original colour. The fourth byte represent transparency, where 0 is
-fully transparent and 255 opaque.
+create the original colour. The fourth byte represents transparency, where 0 is fully transparent and 255
+opaque.
 
 These four values must be set inside the unsigned integer to display the right
 colour. The bytes of this integer are filled as shown in the picture below:
@@ -411,14 +411,14 @@ on a little endian machine.
 
 ### Description
 
-**mlx_new_image** () creates a new image in memory. It returns an _int pointer_
+**mlx_new_image**() creates a new image in memory. It returns an _int pointer_
 needed to manipulate this image later. It only needs the size of the image to be
 created, using the _width_ and _height_ parameters, and the _mlx_ptr_ connection
 identifier.
 
 The user can draw inside the image (see below), and can dump the image inside a
 specified window at any time to display it on the screen. This is done using
-**mlx_put_image_to_window** (). Three identifiers are needed here, for the
+**mlx_put_image_to_window**(). Three identifiers are needed here, for the
 connection to the display, the window to use, and the image (respectively
 _mlx_ptr_ , _win_ptr_ and _img_ptr_ ). The ( _x_, _y_ ) coordinates define where
 the image should be placed in the window.
@@ -432,7 +432,7 @@ the number of bytes used to store one line of the image in memory. This
 information is needed to move from one line to another in the image. _format_
 tells you how each pixel colour in the image is structured.
 
-Currently only 2 values aredefined:
+Currently only 2 values are defined:
 
 0 means format B8G8R8A8
 
@@ -507,7 +507,7 @@ program receives "events" from the keyboard or the mouse.
 
 ### Description
 
-To receive events, you must use **mlx_loop** (). This function never returns,
+To receive events, you must use **mlx_loop**(). This function never returns,
 unless **mlx_loop_exit** is called. It is an infinite loop that waits for an
 event, and then calls a user-defined function associated with this event. A
 single parameter is needed, the connection identifier _mlx_ptr_.
@@ -522,14 +522,14 @@ You can assign different functions to the three following events:
 
 Each window can define a different function for the same event.
 
-The three functions **mlx_key_hook** (), **mlx_mouse_hook** () and
-**mlx_expose_hook** () work exactly the same way. _callback_ is a reference to
+The three functions **mlx_key_hook**(), **mlx_mouse_hook**() and
+**mlx_expose_hook**() work exactly the same way. _callback_ is a reference to
 the function that is invoked when an event occurs. This assignment is specific
 to the window defined by the _win_ptr_ identifier. The _param_ address will be
 passed back to your function every time it is called, and should be used to
 store the parameters it might need.
 
-The syntax for the **mlx_loop_hook** () function is similar to the previous
+The syntax for the **mlx_loop_hook**() function is similar to the previous
 ones, but the given function will be called when no event occurs, and is not
 bound to a specific window.
 
@@ -574,13 +574,13 @@ for a specific event.
 
     def mlx_mouse_move(mlx_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple(int, int, int): # (status, x, y)
+    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple[int, int, int]: # (status, x, y)
 
     def mlx_do_key_autorepeatoff(mlx_ptr: int | None) -> int:
 
     def mlx_do_key_autorepeaton(mlx_ptr: int | None) -> int:
 
-    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple(int, int, int): # (status, width, height)
+    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple[int, int, int]: # (status, width, height)
 
     def mlx_do_sync(mlx_ptr: int | None) -> int:
 
