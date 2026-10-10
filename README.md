@@ -9,9 +9,9 @@ Python Manual'>
 </p>
 
 <div align='center'>
-    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/noradefitero/42_MiniLibX_Python_Manual'>
-    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/noradefitero/42_MiniLibX_Python_Manual/ci.yml'>
-    <img alt='Licence' src='https://img.shields.io/github/license/noradefitero/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Release' src='https://img.shields.io/github/v/release/dde-fite/42_MiniLibX_Python_Manual'>
+    <img alt='GitHub Actions Workflow Status' src='https://img.shields.io/github/actions/workflow/status/dde-fite/42_MiniLibX_Python_Manual/ci.yml'>
+    <img alt='Licence' src='https://img.shields.io/github/license/dde-fite/42_MiniLibX_Python_Manual'>
     <img alt='42 Network Badge' src='https://img.shields.io/badge/42%20Network-000000?&logo=42&logoColor=white'>
 </div>
 
