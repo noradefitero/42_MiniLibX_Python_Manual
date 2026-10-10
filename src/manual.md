@@ -44,7 +44,7 @@ This library interacts with the underlying graphics system of your operating
 system. Before diving into usage, it's helpful to understand how graphics
 servers manage windows and handle user input.
 
-#### Historical X-Window concept
+#### Unix/Linux: Historical X-Window concept
 
 X-Window is a network-oriented graphical system for Unix. It is based on two
 main parts:
@@ -61,7 +61,7 @@ drawing orders (from the software to the X-Server), and keyboard/mouse events
 
 Nowadays, most of the time, both run on the same computer.
 
-#### Modern graphical approach
+#### Unix/Linux: Modern graphical approach
 
 Modern computers come with a powerful GPU that is directly accessed by
 applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol
@@ -78,6 +78,10 @@ networking aspects that exist with X-Window. It is not possible for a program to
 access a remote GPU and show its window on a remote display. But current
 software architectures are more likely based on a local display application that
 gets data in JSON through a web API.
+
+#### MacOS: Windows server and GPU
+
+Your software interacts directly with the Window server who handles the cohabitation on the screen with other software and the event system, and interacts with the GPU to handle all drawing commands.
 
 ## Getting started
 
