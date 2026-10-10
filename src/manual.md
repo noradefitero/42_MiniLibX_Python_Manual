@@ -464,28 +464,24 @@ connection to the display, the window to use, and the image (respectively
 _mlx_ptr_ , _win_ptr_ and _img_ptr_ ). The ( _x_, _y_ ) coordinates define where
 the image should be placed in the window.
 
-**mlx_get_data_addr** () returns information about the created image, allowing a
-user to modify it later. The _img_ptr_ parameter specifies the image to use. The
-three next parameters should be the addresses of three different valid unsigned
-integers. _bits_per_pixel_ will be filled with the number of bits needed to
-represent a pixel colour (also called the depth of the image). _size_line_ is
-the number of bytes used to store one line of the image in memory. This
+**mlx_get_data_addr**() returns information about the created image, allowing a
+user to modify it later. The _img_ptr_ parameter specifies the image to use. It
+returns the tuple ( _pixels_ , _bits_per_pixel_ , _size_line_ , _format_ ).
+_pixels_ is a writable memoryview over the image buffer (bytes: _height_ \*
+_size_line_ ). _bits_per_pixel_ is the number of bits needed to represent a
+pixel colour (also called the depth of the image). _size_line_ is the number of
+bytes used to store one line of the image in memory (the stride); this
 information is needed to move from one line to another in the image. _format_
 tells you how each pixel colour in the image is structured.
 
 Currently only 2 values are defined:
 
-0 means format B8G8R8A8
+- 0 means format B8G8R8A8
+- 1 means format A8R8G8B8
 
-1 means format A8R8G8B8
-
-**mlx_get_data_addr** returns an _int pointer_ to the address address that
-represents the beginning of the memory area where the image is stored. From this
-address, the first _bits_per_pixel_ bits represent the colour of the first pixel
-in the first line of the image. The second group of _bits_per_pixel_ bits
-represent the second pixel of the first line, and so on. Add _size_line_ to the
-address to get the beginning of the second line. You can reach any pixels of the
-image that way.
+The offset of a pixel is computed as
+`offset = y * size_line + x * (bits_per_pixel // 8)`; the following 4 bytes are
+the colour of that pixel.
 
 **mlx_destroy_image** destroys the given image ( _img_ptr_ ).
 
