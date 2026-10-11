@@ -147,7 +147,7 @@ A Python package similar to the following should appear in the root of the repos
 
 On the 42 intranet, in the Python projects that use MLX (a_maze_ing, etc.), you’ll find a folder containing .whl files.
 
-![Screenshot of the folder](media/fig1.jpg)
+![The mlx folder on the 42 intranet listing the precompiled .whl packages, one per platform and architecture.](media/intra-mlx-folder-preview.jpg)
 
 These can be used as a fallback if you’ve had trouble compiling MinilibX, but it’s not recommended to use them as your primary method, because since they were compiled on other computers, in different environments, or on different architectures, they may cause problems on your PC or any other machine.
 
