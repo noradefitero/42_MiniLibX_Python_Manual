@@ -181,7 +181,7 @@ pip install mlx-X.X-py3-none-any.whl
 > [!TIP]
 > Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
 
-![Chart with benchmark results. From uv's docs](media/fig2.svg)
+![Chart with benchmark results. From uv's docs](media/uv-benchmark.svg)
 
 > More info in their documentation: [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/)
 
