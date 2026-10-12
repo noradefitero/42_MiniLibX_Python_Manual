@@ -406,9 +406,7 @@ identifier.
 The **mlx_pixel_put**() function draws a defined pixel in the window _win_ptr_
 using the ( _x_ , _y_ ) coordinates, and the specified _color_.
 
-The origin (0,0) is the upper left corner of the window, the x and y axis
-respectively pointing right and down. The connection identifier, _mlx_ptr_ , is
-needed (see the **mlx** man page).
+![Window coordinates: (0,0) is the top-left corner, x grows right and y grows down.](media/diagram-coordinates.svg)
 
 Parameters for **mlx_string_put**() have the same meaning. Instead of a simple
 pixel, the specified _string_ will be displayed at ( _x_ , _y_ ).
