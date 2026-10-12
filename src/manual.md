@@ -131,13 +131,13 @@ git clone https://github.com/42school/mlx_CLXV.git
 
 #### Run compiling scripts
 
-Execute the configuration script provided
+Execute the configuration script provided:
 
 ```bash
 ./configure.sh
 ```
 
-Then compile MiniLibX
+Then compile MiniLibX:
 
 ```bash
 make
@@ -151,12 +151,12 @@ On the 42 intranet, in the Python projects that use MLX (a_maze_ing, etc.), you�
 
 ![The mlx folder on the 42 intranet listing the precompiled .whl packages, one per platform and architecture.](media/intra-mlx-folder-preview.jpg)
 
-These can be used as a fallback if you’ve had trouble compiling MinilibX, but it’s not recommended to use them as your primary method, because since they were compiled on other computers, in different environments, or on different architectures, they may cause problems on your PC or any other machine.
+These can be used as a fallback if you’ve had trouble compiling MinilibX, but it’s not recommended to use them as your primary method. Since they were compiled on other computers, in different environments, or on different architectures, they may cause problems on your PC or any other machine.
 
 > In case you get an error when installing the distributed packages, try changing
 > the name to **mlx-2.4-py3-none-any.whl**.
 
-### Install the .whl
+### Install the wheel
 
 Create a virtual environment with your preferred manager and open it:
 
@@ -351,7 +351,7 @@ If **mlx_init()** fails to set up the connection to the display, it will return
 
 ### Return values
 
-If **mlx_init()** set up the connection to the display correctly, it will return
+If **mlx_init**() set up the connection to the display correctly, it will return
 an **int as a pointer**; otherwise, it returns **None**.
 
 ## Managing windows: mlx_new_window(), mlx_clear_window(), mlx_destroy_window()
@@ -386,7 +386,7 @@ identifier.
 ### Return values
 
 If **mlx_new_window()** fails to create a new window (whatever the reason), it
-will return None, otherwise a non-null pointer(integer) is returned as a window
+will return None, otherwise a non-null pointer (integer) is returned as a window
 identifier.
 
 **mlx_clear_window**() and **mlx_destroy_window**() return 0.
@@ -520,8 +520,8 @@ _filename_ . Note that
 MiniLibX does not use the standard Xpm and PNG libraries to deal with xpm and
 PNG images.
 
-You may not be able to read all types of xpm and PNG images. It however handles
-transparency.
+You may not be able to read all types of xpm and PNG images. It does, however,
+handle transparency.
 
 **mlx_xpm_to_image()** is not implemented in the Python wrapper as it is
 considered not useful in this context.
