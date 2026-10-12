@@ -153,6 +153,7 @@ On the 42 intranet, in the Python projects that use MLX (a_maze_ing, etc.), you�
 
 These can be used as a fallback if you’ve had trouble compiling MinilibX, but it’s not recommended to use them as your primary method. Since they were compiled on other computers, in different environments, or on different architectures, they may cause problems on your PC or any other machine.
 
+> [!NOTE]
 > In case you get an error when installing the distributed packages, try changing
 > the name to **mlx-2.4-py3-none-any.whl**.
 
@@ -185,6 +186,7 @@ pip install mlx-X.X-py3-none-any.whl
 
 ![Chart with benchmark results. From uv's docs](media/uv-benchmark.svg)
 
+> [!NOTE]
 > More info in their documentation: [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/)
 
 ### Example of use
