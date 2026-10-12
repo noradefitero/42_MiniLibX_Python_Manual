@@ -65,7 +65,7 @@ drawing orders (from the software to the X-Server), and keyboard/mouse events
 
 Nowadays, most of the time, both run on the same computer.
 
-![Shows an scheme of an example using XWindow](media/fig3.jpg)
+![The X Window System: applications are X clients, while the X server owns the display and sends input events back to the clients.](media/diagram-x11.svg)
 
 #### Unix/Linux: Wayland, the modern graphical approach
 
@@ -84,6 +84,8 @@ networking aspects that exist with X-Window. It is not possible for a program to
 access a remote GPU and show its window on a remote display. But current
 software architectures are more likely based on a local display application that
 gets data in JSON through a web API.
+
+![Wayland: the application draws directly via Vulkan/OpenGL and talks to the compositor for input and window placement.](media/diagram-wayland.svg)
 
 #### MacOS: Window server and GPU
 
