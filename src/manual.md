@@ -567,6 +567,8 @@ unless **mlx_loop_exit** is called. It is an infinite loop that waits for an
 event, and then calls a user-defined function associated with this event. A
 single parameter is needed, the connection identifier _mlx_ptr_.
 
+![The event loop dispatches incoming key, mouse and expose events to the callbacks you registered.](media/diagram-event-loop.svg)
+
 You can assign different functions to the three following events:
 
 - A key is released
