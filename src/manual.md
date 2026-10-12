@@ -426,10 +426,7 @@ opaque.
 These four values must be set inside the unsigned integer to display the right
 colour. The bytes of this integer are filled as shown in the picture below:
 
-```txt
-| B | G | R | A |   colour integer
-+---+---+---+---+
-```
+![A color is packed into a 32-bit integer as four bytes: blue, green, red and alpha.](media/diagram-color-bytes.svg)
 
 While filling the integer, make sure you avoid endian problems.
 
