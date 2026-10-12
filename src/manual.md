@@ -424,7 +424,7 @@ create the original colour. The fourth byte represents transparency, where 0 is 
 opaque.
 
 These four values must be set inside the unsigned integer to display the right
-colour. The bytes of this integer are filled as shown in the picture below:
+colour. The bytes of this integer are filled in 32-bit color packing (little-endian), as shown in the picture below:
 
 ![A color is packed into a 32-bit integer as four bytes: blue, green, red and alpha.](media/diagram-color-bytes.svg)
 
