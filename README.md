@@ -439,7 +439,16 @@ All of this is passed to CDLL, which, using the previously loaded
 library, will execute the function and return whatever the function
 returns.
 
-## Initialization and cleanup: mlx_init(), mlx_release()
+![The Python wrapper bridges Python method calls to the C MiniLibX
+library through ctypes, which then talks to the OS graphics
+subsystem.](media/diagram-python-c-bridge.svg)
+
+*Figure 6: The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.*
+
+## Initialization and cleanup
+
+The **mlx_init**() and **mlx_release**() functions open and close the
+connection between your program and the graphics and user sub-systems.
 
 ### Synopsis
 
