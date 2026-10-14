@@ -25,6 +25,12 @@ acknowledgements: >
 
 <!-- markdownlint-disable MD013 MD024 -->
 
+## Got any suggestions?
+
+If you find any errors or have any new ideas for improving this manual, feel
+free to open an Issue or Pull Request, or contact me at my email address:
+<nora@defitero.com>
+
 ## Introduction
 
 The MinilibX or MLX is a library written in C (we’ll come back to that) that provides a very simple API to the graphic capabilities. It's designed to be easy enough for early stage coders that could not immediately use standard graphical libraries and windowing systems.
