@@ -658,23 +658,23 @@ ignored in some configurations.
 ### Synopsis
 
 ```python
-    def mlx_mouse_hide(mlx_ptr: int | None) -> int:
+def mlx_mouse_hide(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_show(mlx_ptr: int | None) -> int:
+def mlx_mouse_show(mlx_ptr: int | None) -> int:
 
-    def mlx_mouse_move(win_ptr: int | None, x: int, y: int) -> int:
+def mlx_mouse_move(win_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_mouse_get_pos(win_ptr: int | None) -> tuple[int, int, int]: # (status, x, y)
+def mlx_mouse_get_pos(win_ptr: int | None) -> tuple[int, int, int]: # (status, x, y)
 
-    def mlx_do_key_autorepeatoff(mlx_ptr: int | None) -> int:
+def mlx_do_key_autorepeatoff(mlx_ptr: int | None) -> int:
 
-    def mlx_do_key_autorepeaton(mlx_ptr: int | None) -> int:
+def mlx_do_key_autorepeaton(mlx_ptr: int | None) -> int:
 
-    def mlx_get_screen_size(mlx_ptr: int | None) -> tuple[int, int, int]: # (status, width, height)
+def mlx_get_screen_size(mlx_ptr: int | None) -> tuple[int, int, int]: # (status, width, height)
 
-    def mlx_do_sync(mlx_ptr: int | None) -> int:
+def mlx_do_sync(mlx_ptr: int | None) -> int:
 
-    def mlx_sync(mlx_ptr: int | None, cmd: int, img_or_win_ptr: int | None) -> int:
+def mlx_sync(mlx_ptr: int | None, cmd: int, img_or_win_ptr: int | None) -> int:
 ```
 
 ### Mouse extra functions
