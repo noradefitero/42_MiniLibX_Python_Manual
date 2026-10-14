@@ -404,7 +404,7 @@ identifier.
 ### Synopsis
 
 ```python
-    def mlx_pixel_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int) -> int:
+def mlx_pixel_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int) -> int:
 
     def mlx_string_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int, string: str) -> int:
 ```
@@ -446,15 +446,15 @@ on a little endian machine.
 ### Synopsis
 
 ```python
-    def mlx_new_image(mlx_ptr: int | None, width: int, height: int) -> int | None: # void *
+def mlx_new_image(mlx_ptr: int | None, width: int, height: int) -> int | None: # void *
 
-    def mlx_get_data_addr(img_ptr: int | None) -> Tuple[memoryview, int, int, int]: # (pixels, bits_per_pixel, size_line, format)
+def mlx_get_data_addr(img_ptr: int | None) -> Tuple[memoryview, int, int, int]: # (pixels, bits_per_pixel, size_line, format)
 
-    def mlx_put_image_to_window(mlx_ptr: int | None, win_ptr: int | None, img_ptr: int | None, x: int, y: int) -> int:
+def mlx_put_image_to_window(mlx_ptr: int | None, win_ptr: int | None, img_ptr: int | None, x: int, y: int) -> int:
 
-    def mlx_xpm_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
+def mlx_xpm_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
 
-    def mlx_png_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
+def mlx_png_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
 
     def mlx_destroy_image(mlx_ptr: int | None, img_ptr: int | None) -> int:
 ```
@@ -544,19 +544,19 @@ _image_ is None on error, otherwise a non-null integer image identifier.
 ### Synopsis
 
 ```python
-    def mlx_loop(mlx_ptr: int | None) -> int:
+def mlx_loop(mlx_ptr: int | None) -> int:
 
-    def mlx_key_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
+def mlx_key_hook(win_ptr: int | None, callback: Callable[..., Any] | None, param: Any) -> int:
 
-    def mlx_mouse_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
+def mlx_mouse_hook(win_ptr: int | None, callback: Callable[..., Any] | None, param: Any) -> int:
 
-    def mlx_expose_hook(win_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
+def mlx_expose_hook(win_ptr: int | None, callback: Callable[..., Any] | None, param: Any) -> int:
 
-    def mlx_loop_hook(mlx_ptr: int | None, callback: Callable[Any] | None, param: Any) -> int:
+def mlx_loop_hook(mlx_ptr: int | None, callback: Callable[..., Any] | None, param: Any) -> int:
 
-    def mlx_hook(win_ptr: int | None, x_event: int, x_mask: int, callback: Callable[Any] | None, param: Any) -> int:
+def mlx_hook(win_ptr: int | None, x_event: int, x_mask: int, callback: Callable[..., Any] | None, param: Any) -> int:
 
-    def mlx_loop_exit(mlx_ptr: int | None) -> int:
+def mlx_loop_exit(mlx_ptr: int | None) -> int:
 ```
 
 ### Events
