@@ -677,6 +677,25 @@ def mlx_do_sync(mlx_ptr: int | None) -> int:
 def mlx_sync(mlx_ptr: int | None, cmd: int, img_or_win_ptr: int | None) -> int:
 ```
 
+| Parameter      | Type | Description                                                                                    |
+| -------------- | ---- | ---------------------------------------------------------------------------------------------- |
+| mlx_ptr        | int  | Connection identifier returned by `mlx_init()`.                                                |
+| win_ptr        | int  | Window identifier returned by `mlx_new_window()`.                                              |
+| x, y           | int  | Coordinates inside the window.                                                                 |
+| cmd            | int  | One of the `Mlx.SYNC_*` constants (see [Flush and sync functions](#flush-and-sync-functions)). |
+| img_or_win_ptr | int  | Image or window identifier, depending on `cmd`.                                                |
+
+### Example
+
+```python
+status, w, h = m.mlx_get_screen_size(mlx_ptr)
+print(f"Screen is {w} x {h}")
+
+m.mlx_mouse_hide(mlx_ptr)
+m.mlx_mouse_move(win_ptr, w // 2, h // 2)
+m.mlx_do_sync(mlx_ptr)
+```
+
 ### Mouse extra functions
 
 It is possible to show / hide the mouse, and get its current position without
