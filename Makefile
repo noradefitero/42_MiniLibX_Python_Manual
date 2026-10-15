@@ -27,15 +27,15 @@ pdf: $(PDF_FILES)
 readme: README.md
 .PHONY: readme
 
-README.md: $(SRC_DIR)/manual.md
+README.md: $(SRC_DIR)/manual.md $(TEMPLATE_README_MD) $(FILTER_FIGURES)
 	mkdir -p $(dir $@)
 	pandoc --template $(TEMPLATE_README_MD) -f gfm -t gfm --toc --lua-filter $(FILTER_FIGURES) $< -o $@
 
-$(DIST_DIR)/%.md: $(SRC_DIR)/%.md
+$(DIST_DIR)/%.md: $(SRC_DIR)/%.md $(TEMPLATE_MD) $(FILTER_FIGURES)
 	mkdir -p $(dir $@)
 	pandoc --template $(TEMPLATE_MD) -f gfm -t gfm --toc --lua-filter $(FILTER_FIGURES) $< -o $@
 
-$(DIST_DIR)/%.pdf: $(SRC_DIR)/%.md
+$(DIST_DIR)/%.pdf: $(SRC_DIR)/%.md $(TEMPLATE_PDF) $(FILTER_ALERTS)
 	mkdir -p $(dir $@)
 	pandoc --template $(TEMPLATE_PDF) -f markdown+alerts --lua-filter $(FILTER_ALERTS) $< -o $@
 
