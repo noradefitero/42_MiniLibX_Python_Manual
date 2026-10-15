@@ -734,9 +734,3 @@ mechanisms. Three different commands are available:
 The third parameter _param_ can be either the image identifier or the window
 identifier. Note that these are class attributes of **Mlx** (not importable at
 module level).
-
-## Got any suggestions?
-
-If you find any errors or have any new ideas for improving this manual, feel
-free to open an Issue or Pull Request, or contact me at my email address:
-<nora@defitero.com>
