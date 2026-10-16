@@ -188,12 +188,9 @@ pip install mlx-X.X-py3-none-any.whl
 ```
 
 > [!TIP]
-> Do you find virtual environments confusing? Try uv, a version and project manager written in Rust.
+> Do you find virtual environments confusing? Try uv, a version and project manager written in Rust. More info in their documentation: [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/)
 
 ![Chart with benchmark results. From uv's docs](media/uv-benchmark.svg)
-
-> [!NOTE]
-> More info in their documentation: [https://docs.astral.sh/uv/](https://docs.astral.sh/uv/)
 
 ### Example of use
 
@@ -268,7 +265,7 @@ m.mlx_loop(mlx_ptr)
 m.mlx_release(mlx_ptr)
 ```
 
-## What is the MLX Wrapper? And why is it so important?
+## The MLX Wrapper
 
 Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, "test")` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right?
 
@@ -279,8 +276,6 @@ Well, you’ve just discovered how the vast majority of large-scale programming 
 That’s why what we’re actually using isn’t MinilibX itself, but rather the MinilibX Python wrapper—or, more precisely, a library full of functions that tell Python how to call other C functions and return the results to you.
 
 Let’s take a closer look at how it works.
-
-![The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.](media/diagram-python-c-bridge.svg)
 
 ### How does the wrapper work?
 
@@ -330,7 +325,9 @@ void *).
 All of this is passed to CDLL, which, using the previously loaded library, will
 execute the function and return whatever the function returns.
 
-## Initialization and cleanup: mlx_init(), mlx_release()
+![The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.](media/diagram-python-c-bridge.svg)
+
+## Initialization and cleanup
 
 ### Synopsis
 
@@ -362,7 +359,7 @@ If **mlx_init()** fails to set up the connection to the display, it will return
 If **mlx_init**() set up the connection to the display correctly, it will return
 an **int as a pointer**; otherwise, it returns **None**.
 
-## Managing windows: mlx_new_window(), mlx_clear_window(), mlx_destroy_window()
+## Managing windows
 
 ### Synopsis
 
@@ -399,7 +396,7 @@ identifier.
 
 **mlx_clear_window**() and **mlx_destroy_window**() return 0.
 
-## Drawing inside windows: mlx_pixel_put(), mlx_string_put()
+## Drawing inside windows
 
 ### Synopsis
 
@@ -441,7 +438,7 @@ While filling the integer, make sure you avoid endian problems.
 Example: the \"blue\" byte will be the least significant byte inside the integer
 on a little endian machine.
 
-## Manipulating images: mlx_new_image(), mlx_get_data_addr(), mlx_put_image_to_window(), mlx_xpm_file_to_image(), mlx_png_file_to_image(), mlx_destroy_image()
+## Manipulating images
 
 ### Synopsis
 
@@ -539,7 +536,7 @@ integer as an image identifier. **mlx_xpm_file_to_image()** and
 **mlx_png_file_to_image()** return a tuple ( _image_ , _width_ , _height_ ):
 _image_ is None on error, otherwise a non-null integer image identifier.
 
-## Handle events: mlx_loop(), mlx_key_hook(), mlx_mouse_hook(), mlx_expose_hook(), mlx_loop_hook(), mlx_loop_exit()
+## Handle events
 
 ### Synopsis
 
