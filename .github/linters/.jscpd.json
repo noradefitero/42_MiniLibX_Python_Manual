@@ -3,5 +3,5 @@
   "reporters": ["consoleFull"],
   "absolute": true,
   "gitignore": true,
-  "ignore": ["README.md", "src/template/**"]
+  "ignore": ["README.md", "src/template/**", "*.svg", "*.af"]
 }
