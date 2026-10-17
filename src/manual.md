@@ -44,57 +44,20 @@ It provides:
 - Keyboard and mouse input handling
 - PNG and XPM image loading
 
-### How a graphics server works
+> [!NOTE]
+> New to graphics programming? You can read this manual as a short course
+> instead of a dictionary: 1) [Getting started](#getting-started) to install
+> the library and open your first window, 2) [Drawing inside
+> windows](#drawing-inside-windows) and [Manipulating
+> images](#manipulating-images) to put pixels on screen, 3) [Handle
+> events](#handle-events) to react to the keyboard and the mouse, 4) the game
+> loop in [Example of use](#example-of-use) to animate everything, and 5) test
+> yourself with the exercises in [Try it yourself](#try-it-yourself). If you
+> already know the API, jump straight to the [Function
+> index](#function-index).
 
-This library interacts with the underlying graphics system of your operating
-system. Before diving into usage, it's helpful to understand how graphics
-servers manage windows and handle user input.
-
-#### Unix/Linux: Historical X-Window concept
-
-The X Window System, often called X11, is the software layer that draws text and graphics on the screen. X does not decide how applications look: that is the job of each X client, of a window manager such as Window Maker or Tab Window Manager, or of a complete desktop environment like KDE, GNOME or Xfce.
-
-X is cross-platform: Linux, the BSDs, Solaris and other Unix-like systems all support it, and implementations exist for Apple’s macOS and Microsoft Windows as well.
-
-It is based on two main parts:
-
-- On one side, your software wants to draw something on the screen and/or get
-  keyboard & mouse entries.
-
-- On the other side, the X-Server manages the screen, keyboard and mouse (It is
-  often referred to as a \"display\").
-
-A network connection must be established between these two entities to send
-drawing orders (from the software to the X-Server), and keyboard/mouse events
-(from the X-Server to the software).
-
-Nowadays, most of the time, both run on the same computer.
-
-![The X Window System: applications are X clients, while the X server owns the display and sends input events back to the clients.](media/diagram-x11.svg)
-
-#### Unix/Linux: Wayland, the modern graphical approach
-
-Modern computers come with a powerful GPU that is directly accessed by
-applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol
-ensures communication with the compositor program that manages the various
-windows on screen and the user input events. For your own application:
-
-- The Vulkan or OpenGL library allows you to directly draw any content into your
-  window.
-- The Wayland compositor handles the place of your window on screen and sends you
-  back the keyboard and mouse inputs from the user.
-
-Unfortunately, this gain of graphical power through GPU access removes the
-networking aspects that exist with X-Window. It is not possible for a program to
-access a remote GPU and show its window on a remote display. But current
-software architectures are more likely based on a local display application that
-gets data in JSON through a web API.
-
-![Wayland: the application draws directly via Vulkan/OpenGL and talks to the compositor for input and window placement.](media/diagram-wayland.svg)
-
-#### MacOS: Window server and GPU
-
-Your software interacts directly with the Window server that handles the cohabitation on the screen with other software and the event system, and interacts with the GPU to handle all drawing commands.
+For background on how graphics servers handle windows and input, see
+[Appendix A](#appendix-a-how-a-graphics-server-works).
 
 ## Getting started
 
@@ -1062,13 +1025,915 @@ The **mlx_do_sync** function will flush the pending commands to the graphic
 subsystems, ensuring nothing is cached on your software's side. On return, there
 is no guarantee that your commands have been processed.
 
-With **mlx_sync** you have more detailed control over the synchronisation
+With **mlx_sync** you have more detailed control over the synchronization
 mechanisms. Three different commands are available:
 
 - Mlx.SYNC_IMAGE_WRITABLE = 1
 - Mlx.SYNC_WIN_FLUSH = 2
 - Mlx.SYNC_WIN_COMPLETED = 3
 
-The third parameter _param_ can be either the image identifier or the window
-identifier. Note that these are class attributes of **Mlx** (not importable at
-module level).
+The third parameter _img_or_win_ptr_ can be either the image identifier or the
+window identifier. Note that these are class attributes of **Mlx** (not
+importable at module level).
+
+### Platform differences
+
+MiniLibX sits on top of three different backends, and a few behaviors change
+between them. If your program works on one machine but not on another, check
+this table before blaming your code:
+
+| Behavior                     | X11 (Linux)                 | Wayland (Linux)             | macOS (AppKit)        |
+| ---------------------------- | --------------------------- | --------------------------- | --------------------- |
+| Expose events                | Once, usually               | Never                       | Never                 |
+| `mlx_do_key_autorepeatoff()` | Works                       | May be a no-op              | Filters the OS repeat |
+| `mlx_mouse_move()`           | Works                       | May return `-1`             | Works                 |
+| Content before `mlx_loop()`  | Shown after `mlx_do_sync()` | Shown after `mlx_do_sync()` | Nothing is shown      |
+
+## Try it yourself
+
+Reading is not enough: the only way to learn a graphics library is to make
+pixels obey you. The five exercises below build on each other and only use
+what this manual has covered. Try each one on your own before looking at the
+solution.
+
+### 1. Your first window
+
+Open a 640×480 window titled with your login, and make Escape close the
+program cleanly. Don't forget the `None` checks.
+
+```python
+from mlx import Mlx
+
+m = Mlx()
+mlx_ptr = m.mlx_init()
+if mlx_ptr is None:
+    raise RuntimeError("mlx_init() failed")
+win_ptr = m.mlx_new_window(mlx_ptr, 640, 480, "your_login")
+
+
+def on_key(keycode, param):
+    if keycode == 65307:  # Escape
+        m.mlx_loop_exit(mlx_ptr)
+
+
+m.mlx_hook(win_ptr, 2, 1, on_key, None)  # event 2 = KeyPress
+m.mlx_loop(mlx_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
+m.mlx_release(mlx_ptr)
+```
+
+### 2. A gradient
+
+Fill the window with a gradient that goes from black (top) to blue (bottom).
+First do it with `mlx_pixel_put()` in a loop. Then do it again with an image
+buffer and a single `mlx_put_image_to_window()`. Notice the speed difference:
+that is why images exist.
+
+```python
+from mlx import Mlx
+
+m = Mlx()
+mlx_ptr = m.mlx_init()
+win_ptr = m.mlx_new_window(mlx_ptr, 640, 480, "Gradient")
+
+
+def rgba(r, g, b, a=255):
+    return (a << 24) | (r << 16) | (g << 8) | b
+
+
+# Slow version: one call to the graphics system per pixel
+for y in range(480):
+    for x in range(640):
+        m.mlx_pixel_put(mlx_ptr, win_ptr, x, y, rgba(0, 0, y // 2))
+
+# Fast version: one buffer, one blit
+img_ptr = m.mlx_new_image(mlx_ptr, 640, 480)
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+for y in range(480):
+    for x in range(640):
+        offset = y * size_line + x * 4
+        pixels[offset:offset + 4] = bytes([y // 2, 0, 0, 255])  # BGRA
+m.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
+m.mlx_loop(mlx_ptr)
+m.mlx_destroy_image(mlx_ptr, img_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
+m.mlx_release(mlx_ptr)
+```
+
+### 3. Key spy
+
+Print the keysym of every key you press (you need event 2) and exit with
+Escape. Then hold a letter key down: how many events do you get? Call
+`mlx_do_key_autorepeatoff()` and compare.
+
+```python
+from mlx import Mlx
+
+m = Mlx()
+mlx_ptr = m.mlx_init()
+win_ptr = m.mlx_new_window(mlx_ptr, 300, 200, "Key spy")
+
+
+def on_press(keycode, param):
+    print(f"key {keycode} (0x{keycode:X})")
+    if keycode == 65307:  # Escape
+        m.mlx_loop_exit(mlx_ptr)
+
+
+m.mlx_do_key_autorepeatoff(mlx_ptr)  # remove this line to compare
+m.mlx_hook(win_ptr, 2, 1, on_press, None)
+m.mlx_loop(mlx_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
+m.mlx_release(mlx_ptr)
+```
+
+### 4. Moving square
+
+A 40×40 square that moves at a constant speed with the arrow keys (or WASD).
+Use the framebuffer pattern and `time.monotonic()` so the speed does not
+depend on how fast your computer is.
+
+```python
+import time
+
+from mlx import Mlx
+
+W, H = 640, 480
+SIZE = 40
+m = Mlx()
+mlx_ptr = m.mlx_init()
+win_ptr = m.mlx_new_window(mlx_ptr, W, H, "Moving square")
+img_ptr = m.mlx_new_image(mlx_ptr, W, H)
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+
+x, y = W // 2 - SIZE // 2, H // 2 - SIZE // 2
+pressed = set()
+last = time.monotonic()
+
+
+def put_square(px, py):
+    for row in range(SIZE):
+        for col in range(SIZE):
+            off = (py + row) * size_line + (px + col) * 4
+            pixels[off:off + 4] = bytes([0, 0, 255, 255])  # BGRA red
+
+
+def frame(param):
+    global last, x, y
+    now = time.monotonic()
+    dt = now - last
+    last = now
+    m.mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)
+    pixels[:] = b"\x00" * len(pixels)
+    if 65361 in pressed or 97 in pressed:    # Left / A
+        x -= 200 * dt
+    if 65363 in pressed or 100 in pressed:   # Right / D
+        x += 200 * dt
+    if 65362 in pressed or 119 in pressed:   # Up / W
+        y -= 200 * dt
+    if 65364 in pressed or 115 in pressed:   # Down / S
+        y += 200 * dt
+    x = max(0, min(W - SIZE, x))
+    y = max(0, min(H - SIZE, y))
+    put_square(int(x), int(y))
+    m.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
+
+
+m.mlx_do_key_autorepeatoff(mlx_ptr)
+m.mlx_hook(win_ptr, 2, 1, lambda k, p: pressed.add(k), None)
+m.mlx_hook(win_ptr, 3, 2, lambda k, p: pressed.discard(k), None)
+m.mlx_loop_hook(mlx_ptr, frame, None)
+m.mlx_loop(mlx_ptr)
+m.mlx_destroy_image(mlx_ptr, img_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
+m.mlx_release(mlx_ptr)
+```
+
+### 5. Bouncing square
+
+Same square, but it bounces off the window edges, and its color changes with
+its position on screen. When this works, you have everything you need for
+your first 42 graphics project.
+
+```python
+import time
+
+from mlx import Mlx
+
+W, H = 640, 480
+SIZE = 40
+m = Mlx()
+mlx_ptr = m.mlx_init()
+win_ptr = m.mlx_new_window(mlx_ptr, W, H, "Bouncing square")
+img_ptr = m.mlx_new_image(mlx_ptr, W, H)
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+
+x, y = W / 2, H / 2
+vx, vy = 300.0, 220.0  # pixels per second
+last = time.monotonic()
+
+
+def frame(param):
+    global last, x, y, vx, vy
+    now = time.monotonic()
+    dt = now - last
+    last = now
+    x += vx * dt
+    y += vy * dt
+    if x <= 0 or x >= W - SIZE:
+        vx = -vx
+        x = max(0, min(W - SIZE, x))
+    if y <= 0 or y >= H - SIZE:
+        vy = -vy
+        y = max(0, min(H - SIZE, y))
+    m.mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)
+    pixels[:] = b"\x00" * len(pixels)
+    r = int(255 * x / W)  # the color follows the position
+    g = int(255 * y / H)
+    for row in range(SIZE):
+        for col in range(SIZE):
+            off = (int(y) + row) * size_line + (int(x) + col) * 4
+            pixels[off:off + 4] = bytes([0, g, r, 255])  # BGRA
+    m.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
+
+
+m.mlx_loop_hook(mlx_ptr, frame, None)
+m.mlx_loop(mlx_ptr)
+m.mlx_destroy_image(mlx_ptr, img_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
+m.mlx_release(mlx_ptr)
+```
+
+## Troubleshooting
+
+| Symptom                                  | Likely cause                               | Fix                                                      |
+| ---------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| `Ctrl-C` does not stop the program       | Signals blocked during `mlx_loop()`        | Press `Ctrl-\` or call `mlx_loop_exit()`                 |
+| `mlx_init()` returns `None`              | No display or missing backend              | Check your environment and dependencies                  |
+| `import mlx` fails to load `libmlx`      | Wrong wheel or missing library             | Reinstall a wheel built for your platform                |
+| `pip install` of an intra `.whl` fails   | Non-standard filename                      | Rename it to `mlx-2.4-py3-none-any.whl`                  |
+| `mlx_png_file_to_image()` returns `None` | Unsupported PNG variant                    | Use 8/16-bit RGB or RGBA, non-indexed                    |
+| Window or image identifier is `None`     | Creation failed silently                   | Check every creation result                              |
+| Window opens but stays black             | Nothing is drawn from the loop             | Draw from `mlx_loop_hook()` every frame                  |
+| Callbacks never fire                     | Hooks registered too late                  | Register hooks before calling `mlx_loop()`               |
+| Key only reacts when released            | `mlx_key_hook()` fires on release          | Use `mlx_hook(win, 2, ...)` for presses                  |
+| Pixels land diagonally                   | Offsets computed with `width * 4`          | Use `size_line` (the stride)                             |
+| Artifacts when updating an image         | Buffer rewritten without sync              | Call `mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)` |
+| Nothing shows on macOS                   | Nothing drawn once `mlx_loop()` is running | Draw from `mlx_loop_hook()`                              |
+| `mlx_mouse_move()` returns `-1`          | Wayland backend limitation                 | Accept the failure or check the backend                  |
+| `ValueError` when unpacking a result     | Tuples start with a `status` element       | Unpack it: `status, w, h = ...`                          |
+
+## Function index
+
+Every function exposed by the Python wrapper, grouped by the section that
+documents it.
+
+| Function                                                                                                                               | Section                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `mlx_init`, `mlx_release`                                                                                                              | [Initialization and cleanup](#initialization-and-cleanup) |
+| `mlx_new_window`, `mlx_clear_window`, `mlx_destroy_window`                                                                             | [Managing windows](#managing-windows)                     |
+| `mlx_pixel_put`, `mlx_string_put`                                                                                                      | [Drawing inside windows](#drawing-inside-windows)         |
+| `mlx_new_image`, `mlx_get_data_addr`, `mlx_put_image_to_window`, `mlx_destroy_image`, `mlx_xpm_file_to_image`, `mlx_png_file_to_image` | [Manipulating images](#manipulating-images)               |
+| `mlx_loop`, `mlx_loop_exit`, `mlx_key_hook`, `mlx_mouse_hook`, `mlx_expose_hook`, `mlx_loop_hook`, `mlx_hook`                          | [Handle events](#handle-events)                           |
+| `mlx_mouse_hide`, `mlx_mouse_show`, `mlx_mouse_move`, `mlx_mouse_get_pos`                                                              | [Extra functions](#extra-functions)                       |
+| `mlx_do_key_autorepeatoff`, `mlx_do_key_autorepeaton`                                                                                  | [Extra functions](#extra-functions)                       |
+| `mlx_get_screen_size`, `mlx_do_sync`, `mlx_sync`                                                                                       | [Extra functions](#extra-functions)                       |
+
+## Appendix A: How a graphics server works
+
+This library interacts with the underlying graphics system of your operating
+system. Before diving into usage, it's helpful to understand how graphics
+servers manage windows and handle user input.
+
+### Unix/Linux: Historical X-Window concept
+
+The X Window System, often called X11, is the software layer that draws text and graphics on the screen. X does not decide how applications look: that is the job of each X client, of a window manager such as Window Maker or Tab Window Manager, or of a complete desktop environment like KDE, GNOME or Xfce.
+
+X is cross-platform: Linux, the BSDs, Solaris and other Unix-like systems all support it, and implementations exist for Apple’s macOS and Microsoft Windows as well.
+
+It is based on two main parts:
+
+- On one side, your software wants to draw something on the screen and/or get
+  keyboard & mouse entries.
+
+- On the other side, the X-Server manages the screen, keyboard and mouse (It is
+  often referred to as a "display").
+
+A network connection must be established between these two entities to send
+drawing orders (from the software to the X-Server), and keyboard/mouse events
+(from the X-Server to the software).
+
+Nowadays, most of the time, both run on the same computer.
+
+![The X Window System: applications are X clients, while the X server owns the display and sends input events back to the clients.](media/diagram-x11.svg)
+
+### Unix/Linux: Wayland, the modern graphical approach
+
+Modern computers come with a powerful GPU that is directly accessed by
+applications. Along GPU libraries like Vulkan or OpenGL, the Wayland protocol
+ensures communication with the compositor program that manages the various
+windows on screen and the user input events. For your own application:
+
+- The Vulkan or OpenGL library allows you to directly draw any content into your
+  window.
+- The Wayland compositor handles the place of your window on screen and sends you
+  back the keyboard and mouse inputs from the user.
+
+Unfortunately, this gain of graphical power through GPU access removes the
+networking aspects that exist with X-Window. It is not possible for a program to
+access a remote GPU and show its window on a remote display. But current
+software architectures are more likely based on a local display application that
+gets data in JSON through a web API.
+
+![Wayland: the application draws directly via Vulkan/OpenGL and talks to the compositor for input and window placement.](media/diagram-wayland.svg)
+
+### MacOS: Window server and GPU
+
+Your software interacts directly with the Window server that handles the cohabitation on the screen with other software and the event system, and interacts with the GPU to handle all drawing commands.
+
+## Appendix B: Keysyms, events and masks
+
+This appendix collects everything you may need to look up while writing
+event code: the complete set of keysyms a physical keyboard can send, the
+X11 event numbers passed to **mlx_hook**(), and the event masks it accepts.
+All values come from the official X11 headers (`keysymdef.h` and `X.h`),
+the same tables MiniLibX itself uses.
+
+Keysym values are written in hexadecimal, as in the original headers.
+Convert them when you need the decimal form with `int("0xFF51", 16)`, or
+simply `print(keynum)` inside a key callback. Printable keys are plain
+ASCII: `XK_a` = `0x61` = 97.
+
+### X11 event numbers
+
+The wrapper passes these numbers through unchanged, so they are what you
+give as the _x_event_ argument of **mlx_hook**():
+
+| X11 event        | Number | Python callback parameters |
+| ---------------- | ------ | -------------------------- |
+| KeyPress         | 2      | `(keycode, param)`         |
+| KeyRelease       | 3      | `(keycode, param)`         |
+| ButtonPress      | 4      | `(button, x, y, param)`    |
+| ButtonRelease    | 5      | `(button, x, y, param)`    |
+| MotionNotify     | 6      | `(x, y, param)`            |
+| EnterNotify      | 7      | `(param,)`                 |
+| LeaveNotify      | 8      | `(param,)`                 |
+| FocusIn          | 9      | `(param,)`                 |
+| FocusOut         | 10     | `(param,)`                 |
+| KeymapNotify     | 11     | `(param,)`                 |
+| Expose           | 12     | `(param,)`                 |
+| GraphicsExpose   | 13     | `(param,)`                 |
+| NoExpose         | 14     | `(param,)`                 |
+| VisibilityNotify | 15     | `(param,)`                 |
+| CreateNotify     | 16     | `(param,)`                 |
+| DestroyNotify    | 17     | `(param,)`                 |
+| UnmapNotify      | 18     | `(param,)`                 |
+| MapNotify        | 19     | `(param,)`                 |
+| MapRequest       | 20     | `(param,)`                 |
+| ReparentNotify   | 21     | `(param,)`                 |
+| ConfigureNotify  | 22     | `(param,)`                 |
+| ConfigureRequest | 23     | `(param,)`                 |
+| GravityNotify    | 24     | `(param,)`                 |
+| ResizeRequest    | 25     | `(param,)`                 |
+| CirculateNotify  | 26     | `(param,)`                 |
+| CirculateRequest | 27     | `(param,)`                 |
+| PropertyNotify   | 28     | `(param,)`                 |
+| SelectionClear   | 29     | `(param,)`                 |
+| SelectionRequest | 30     | `(param,)`                 |
+| SelectionNotify  | 31     | `(param,)`                 |
+| ColormapNotify   | 32     | `(param,)`                 |
+| ClientMessage    | 33     | `(param,)`                 |
+| MappingNotify    | 34     | `(param,)`                 |
+| GenericEvent     | 35     | `(param,)`                 |
+
+Only a subset of these reaches your program: the backend translates what
+the platform can actually deliver (for example, X11 also generates
+`GraphicsExpose` or `ReparentNotify`, which have no meaning in a typical
+MiniLibX program).
+
+### Event masks
+
+The second argument of **mlx_hook**() is the _x_mask_: a bit flag that
+tells the X11 server which events to deliver. Combine masks with `|`
+when you need more than one:
+
+| Mask                     | Value    |
+| ------------------------ | -------- |
+| NoEventMask              | 0        |
+| KeyPressMask             | 1        |
+| KeyReleaseMask           | 2        |
+| ButtonPressMask          | 4        |
+| ButtonReleaseMask        | 8        |
+| EnterWindowMask          | 16       |
+| LeaveWindowMask          | 32       |
+| PointerMotionMask        | 64       |
+| PointerMotionHintMask    | 128      |
+| Button1MotionMask        | 256      |
+| Button2MotionMask        | 512      |
+| Button3MotionMask        | 1024     |
+| Button4MotionMask        | 2048     |
+| Button5MotionMask        | 4096     |
+| ButtonMotionMask         | 8192     |
+| KeymapStateMask          | 16384    |
+| ExposureMask             | 32768    |
+| VisibilityChangeMask     | 65536    |
+| StructureNotifyMask      | 131072   |
+| ResizeRedirectMask       | 262144   |
+| SubstructureNotifyMask   | 524288   |
+| SubstructureRedirectMask | 1048576  |
+| FocusChangeMask          | 2097152  |
+| PropertyChangeMask       | 4194304  |
+| ColormapChangeMask       | 8388608  |
+| OwnerGrabButtonMask      | 16777216 |
+
+In practice, most programs only need the first four:
+`KeyPressMask` (1), `KeyReleaseMask` (2), `ButtonPressMask` (4) and `ButtonReleaseMask` (8). The Wayland and macOS backends may ignore the mask.
+
+### Key and button masks
+
+These appear in the _state_ field of motion and button events, telling you
+which modifier keys or buttons were held at that moment:
+
+| Mask        | Value | Bit     |
+| ----------- | ----- | ------- |
+| ShiftMask   | 1     | 1 << 0  |
+| LockMask    | 2     | 1 << 1  |
+| ControlMask | 4     | 1 << 2  |
+| Mod1Mask    | 8     | 1 << 3  |
+| Mod2Mask    | 16    | 1 << 4  |
+| Mod3Mask    | 32    | 1 << 5  |
+| Mod4Mask    | 64    | 1 << 6  |
+| Mod5Mask    | 128   | 1 << 7  |
+| Button1Mask | 256   | 1 << 8  |
+| Button2Mask | 512   | 1 << 9  |
+| Button3Mask | 1024  | 1 << 10 |
+| Button4Mask | 2048  | 1 << 11 |
+| Button5Mask | 4096  | 1 << 12 |
+| AnyModifier | 32768 | 1 << 15 |
+
+### Keysym tables
+
+Complete tables of every keysym a physical keyboard can produce, grouped
+as in `keysymdef.h`. X11 also defines keysyms for other alphabets
+(Katakana, Arabic, Cyrillic, Greek, Hebrew, Thai, Korean), for technical
+and publishing symbols, and for Unicode characters above `0xFFFF`; those
+are not listed here.
+
+#### TTY function keys
+
+| Key              | Keysym   | Key          | Keysym   |
+| ---------------- | -------- | ------------ | -------- |
+| `XK_BackSpace`   | `0xff08` | `XK_Tab`     | `0xff09` |
+| `XK_Linefeed`    | `0xff0a` | `XK_Clear`   | `0xff0b` |
+| `XK_Return`      | `0xff0d` | `XK_Pause`   | `0xff13` |
+| `XK_Scroll_Lock` | `0xff14` | `XK_Sys_Req` | `0xff15` |
+| `XK_Escape`      | `0xff1b` | `XK_Delete`  | `0xffff` |
+
+#### Cursor keys
+
+| Key            | Keysym   | Key        | Keysym   |
+| -------------- | -------- | ---------- | -------- |
+| `XK_Home`      | `0xff50` | `XK_Left`  | `0xff51` |
+| `XK_Up`        | `0xff52` | `XK_Right` | `0xff53` |
+| `XK_Down`      | `0xff54` | `XK_Prior` | `0xff55` |
+| `XK_Page_Up`   | `0xff55` | `XK_Next`  | `0xff56` |
+| `XK_Page_Down` | `0xff56` | `XK_End`   | `0xff57` |
+| `XK_Begin`     | `0xff58` |            |          |
+
+#### Misc function keys
+
+| Key                | Keysym   | Key              | Keysym   |
+| ------------------ | -------- | ---------------- | -------- |
+| `XK_Select`        | `0xff60` | `XK_Print`       | `0xff61` |
+| `XK_Execute`       | `0xff62` | `XK_Insert`      | `0xff63` |
+| `XK_Undo`          | `0xff65` | `XK_Redo`        | `0xff66` |
+| `XK_Menu`          | `0xff67` | `XK_Find`        | `0xff68` |
+| `XK_Cancel`        | `0xff69` | `XK_Help`        | `0xff6a` |
+| `XK_Break`         | `0xff6b` | `XK_Mode_switch` | `0xff7e` |
+| `XK_script_switch` | `0xff7e` | `XK_Num_Lock`    | `0xff7f` |
+
+#### Keypad
+
+| Key              | Keysym   | Key               | Keysym   |
+| ---------------- | -------- | ----------------- | -------- |
+| `XK_KP_Space`    | `0xff80` | `XK_KP_Tab`       | `0xff89` |
+| `XK_KP_Enter`    | `0xff8d` | `XK_KP_F1`        | `0xff91` |
+| `XK_KP_F2`       | `0xff92` | `XK_KP_F3`        | `0xff93` |
+| `XK_KP_F4`       | `0xff94` | `XK_KP_Home`      | `0xff95` |
+| `XK_KP_Left`     | `0xff96` | `XK_KP_Up`        | `0xff97` |
+| `XK_KP_Right`    | `0xff98` | `XK_KP_Down`      | `0xff99` |
+| `XK_KP_Prior`    | `0xff9a` | `XK_KP_Page_Up`   | `0xff9a` |
+| `XK_KP_Next`     | `0xff9b` | `XK_KP_Page_Down` | `0xff9b` |
+| `XK_KP_End`      | `0xff9c` | `XK_KP_Begin`     | `0xff9d` |
+| `XK_KP_Insert`   | `0xff9e` | `XK_KP_Delete`    | `0xff9f` |
+| `XK_KP_Equal`    | `0xffbd` | `XK_KP_Multiply`  | `0xffaa` |
+| `XK_KP_Add`      | `0xffab` | `XK_KP_Separator` | `0xffac` |
+| `XK_KP_Subtract` | `0xffad` | `XK_KP_Decimal`   | `0xffae` |
+| `XK_KP_Divide`   | `0xffaf` | `XK_KP_0`         | `0xffb0` |
+| `XK_KP_1`        | `0xffb1` | `XK_KP_2`         | `0xffb2` |
+| `XK_KP_3`        | `0xffb3` | `XK_KP_4`         | `0xffb4` |
+| `XK_KP_5`        | `0xffb5` | `XK_KP_6`         | `0xffb6` |
+| `XK_KP_7`        | `0xffb7` | `XK_KP_8`         | `0xffb8` |
+| `XK_KP_9`        | `0xffb9` |                   |          |
+
+#### Function keys (F1-F35)
+
+| Key      | Keysym   | Key      | Keysym   |
+| -------- | -------- | -------- | -------- |
+| `XK_F1`  | `0xffbe` | `XK_F2`  | `0xffbf` |
+| `XK_F3`  | `0xffc0` | `XK_F4`  | `0xffc1` |
+| `XK_F5`  | `0xffc2` | `XK_F6`  | `0xffc3` |
+| `XK_F7`  | `0xffc4` | `XK_F8`  | `0xffc5` |
+| `XK_F9`  | `0xffc6` | `XK_F10` | `0xffc7` |
+| `XK_F11` | `0xffc8` | `XK_L1`  | `0xffc8` |
+| `XK_F12` | `0xffc9` | `XK_L2`  | `0xffc9` |
+| `XK_F13` | `0xffca` | `XK_L3`  | `0xffca` |
+| `XK_F14` | `0xffcb` | `XK_L4`  | `0xffcb` |
+| `XK_F15` | `0xffcc` | `XK_L5`  | `0xffcc` |
+| `XK_F16` | `0xffcd` | `XK_L6`  | `0xffcd` |
+| `XK_F17` | `0xffce` | `XK_L7`  | `0xffce` |
+| `XK_F18` | `0xffcf` | `XK_L8`  | `0xffcf` |
+| `XK_F19` | `0xffd0` | `XK_L9`  | `0xffd0` |
+| `XK_F20` | `0xffd1` | `XK_L10` | `0xffd1` |
+| `XK_F21` | `0xffd2` | `XK_R1`  | `0xffd2` |
+| `XK_F22` | `0xffd3` | `XK_R2`  | `0xffd3` |
+| `XK_F23` | `0xffd4` | `XK_R3`  | `0xffd4` |
+| `XK_F24` | `0xffd5` | `XK_R4`  | `0xffd5` |
+| `XK_F25` | `0xffd6` | `XK_R5`  | `0xffd6` |
+| `XK_F26` | `0xffd7` | `XK_R6`  | `0xffd7` |
+| `XK_F27` | `0xffd8` | `XK_R7`  | `0xffd8` |
+| `XK_F28` | `0xffd9` | `XK_R8`  | `0xffd9` |
+| `XK_F29` | `0xffda` | `XK_R9`  | `0xffda` |
+| `XK_F30` | `0xffdb` | `XK_R10` | `0xffdb` |
+| `XK_F31` | `0xffdc` | `XK_R11` | `0xffdc` |
+| `XK_F32` | `0xffdd` | `XK_R12` | `0xffdd` |
+| `XK_F33` | `0xffde` | `XK_R13` | `0xffde` |
+| `XK_F34` | `0xffdf` | `XK_R14` | `0xffdf` |
+| `XK_F35` | `0xffe0` | `XK_R15` | `0xffe0` |
+
+#### Modifier keys
+
+| Key            | Keysym   | Key             | Keysym   |
+| -------------- | -------- | --------------- | -------- |
+| `XK_Shift_L`   | `0xffe1` | `XK_Shift_R`    | `0xffe2` |
+| `XK_Control_L` | `0xffe3` | `XK_Control_R`  | `0xffe4` |
+| `XK_Caps_Lock` | `0xffe5` | `XK_Shift_Lock` | `0xffe6` |
+| `XK_Meta_L`    | `0xffe7` | `XK_Meta_R`     | `0xffe8` |
+| `XK_Alt_L`     | `0xffe9` | `XK_Alt_R`      | `0xffea` |
+| `XK_Super_L`   | `0xffeb` | `XK_Super_R`    | `0xffec` |
+| `XK_Hyper_L`   | `0xffed` | `XK_Hyper_R`    | `0xffee` |
+
+#### Pointer buttons
+
+| Key                        | Keysym   | Key                      | Keysym   |
+| -------------------------- | -------- | ------------------------ | -------- |
+| `XK_Pointer_Left`          | `0xfee0` | `XK_Pointer_Right`       | `0xfee1` |
+| `XK_Pointer_Up`            | `0xfee2` | `XK_Pointer_Down`        | `0xfee3` |
+| `XK_Pointer_UpLeft`        | `0xfee4` | `XK_Pointer_UpRight`     | `0xfee5` |
+| `XK_Pointer_DownLeft`      | `0xfee6` | `XK_Pointer_DownRight`   | `0xfee7` |
+| `XK_Pointer_Button_Dflt`   | `0xfee8` | `XK_Pointer_Button1`     | `0xfee9` |
+| `XK_Pointer_Button2`       | `0xfeea` | `XK_Pointer_Button3`     | `0xfeeb` |
+| `XK_Pointer_Button4`       | `0xfeec` | `XK_Pointer_Button5`     | `0xfeed` |
+| `XK_Pointer_DblClick_Dflt` | `0xfeee` | `XK_Pointer_DblClick1`   | `0xfeef` |
+| `XK_Pointer_DblClick2`     | `0xfef0` | `XK_Pointer_DblClick3`   | `0xfef1` |
+| `XK_Pointer_DblClick4`     | `0xfef2` | `XK_Pointer_DblClick5`   | `0xfef3` |
+| `XK_Pointer_Drag_Dflt`     | `0xfef4` | `XK_Pointer_Drag1`       | `0xfef5` |
+| `XK_Pointer_Drag2`         | `0xfef6` | `XK_Pointer_Drag3`       | `0xfef7` |
+| `XK_Pointer_Drag4`         | `0xfef8` | `XK_Pointer_Drag5`       | `0xfefd` |
+| `XK_Pointer_EnableKeys`    | `0xfef9` | `XK_Pointer_Accelerate`  | `0xfefa` |
+| `XK_Pointer_DfltBtnNext`   | `0xfefb` | `XK_Pointer_DfltBtnPrev` | `0xfefc` |
+
+#### XKB keys
+
+| Key                              | Keysym   | Key                           | Keysym   |
+| -------------------------------- | -------- | ----------------------------- | -------- |
+| `XK_ISO_Lock`                    | `0xfe01` | `XK_ISO_Level2_Latch`         | `0xfe02` |
+| `XK_ISO_Level3_Shift`            | `0xfe03` | `XK_ISO_Level3_Latch`         | `0xfe04` |
+| `XK_ISO_Level3_Lock`             | `0xfe05` | `XK_ISO_Level5_Shift`         | `0xfe11` |
+| `XK_ISO_Level5_Latch`            | `0xfe12` | `XK_ISO_Level5_Lock`          | `0xfe13` |
+| `XK_ISO_Group_Shift`             | `0xff7e` | `XK_ISO_Group_Latch`          | `0xfe06` |
+| `XK_ISO_Group_Lock`              | `0xfe07` | `XK_ISO_Next_Group`           | `0xfe08` |
+| `XK_ISO_Next_Group_Lock`         | `0xfe09` | `XK_ISO_Prev_Group`           | `0xfe0a` |
+| `XK_ISO_Prev_Group_Lock`         | `0xfe0b` | `XK_ISO_First_Group`          | `0xfe0c` |
+| `XK_ISO_First_Group_Lock`        | `0xfe0d` | `XK_ISO_Last_Group`           | `0xfe0e` |
+| `XK_ISO_Last_Group_Lock`         | `0xfe0f` | `XK_ISO_Left_Tab`             | `0xfe20` |
+| `XK_ISO_Move_Line_Up`            | `0xfe21` | `XK_ISO_Move_Line_Down`       | `0xfe22` |
+| `XK_ISO_Partial_Line_Up`         | `0xfe23` | `XK_ISO_Partial_Line_Down`    | `0xfe24` |
+| `XK_ISO_Partial_Space_Left`      | `0xfe25` | `XK_ISO_Partial_Space_Right`  | `0xfe26` |
+| `XK_ISO_Set_Margin_Left`         | `0xfe27` | `XK_ISO_Set_Margin_Right`     | `0xfe28` |
+| `XK_ISO_Release_Margin_Left`     | `0xfe29` | `XK_ISO_Release_Margin_Right` | `0xfe2a` |
+| `XK_ISO_Release_Both_Margins`    | `0xfe2b` | `XK_ISO_Fast_Cursor_Left`     | `0xfe2c` |
+| `XK_ISO_Fast_Cursor_Right`       | `0xfe2d` | `XK_ISO_Fast_Cursor_Up`       | `0xfe2e` |
+| `XK_ISO_Fast_Cursor_Down`        | `0xfe2f` | `XK_ISO_Continuous_Underline` | `0xfe30` |
+| `XK_ISO_Discontinuous_Underline` | `0xfe31` | `XK_ISO_Emphasize`            | `0xfe32` |
+| `XK_ISO_Center_Object`           | `0xfe33` | `XK_ISO_Enter`                | `0xfe34` |
+
+#### Dead keys (accents)
+
+| Key                        | Keysym   | Key                          | Keysym   |
+| -------------------------- | -------- | ---------------------------- | -------- |
+| `XK_dead_grave`            | `0xfe50` | `XK_dead_acute`              | `0xfe51` |
+| `XK_dead_circumflex`       | `0xfe52` | `XK_dead_tilde`              | `0xfe53` |
+| `XK_dead_perispomeni`      | `0xfe53` | `XK_dead_macron`             | `0xfe54` |
+| `XK_dead_breve`            | `0xfe55` | `XK_dead_abovedot`           | `0xfe56` |
+| `XK_dead_diaeresis`        | `0xfe57` | `XK_dead_abovering`          | `0xfe58` |
+| `XK_dead_doubleacute`      | `0xfe59` | `XK_dead_caron`              | `0xfe5a` |
+| `XK_dead_cedilla`          | `0xfe5b` | `XK_dead_ogonek`             | `0xfe5c` |
+| `XK_dead_iota`             | `0xfe5d` | `XK_dead_voiced_sound`       | `0xfe5e` |
+| `XK_dead_semivoiced_sound` | `0xfe5f` | `XK_dead_belowdot`           | `0xfe60` |
+| `XK_dead_hook`             | `0xfe61` | `XK_dead_horn`               | `0xfe62` |
+| `XK_dead_stroke`           | `0xfe63` | `XK_dead_abovecomma`         | `0xfe64` |
+| `XK_dead_psili`            | `0xfe64` | `XK_dead_abovereversedcomma` | `0xfe65` |
+| `XK_dead_dasia`            | `0xfe65` | `XK_dead_doublegrave`        | `0xfe66` |
+| `XK_dead_belowring`        | `0xfe67` | `XK_dead_belowmacron`        | `0xfe68` |
+| `XK_dead_belowcircumflex`  | `0xfe69` | `XK_dead_belowtilde`         | `0xfe6a` |
+| `XK_dead_belowbreve`       | `0xfe6b` | `XK_dead_belowdiaeresis`     | `0xfe6c` |
+| `XK_dead_invertedbreve`    | `0xfe6d` | `XK_dead_belowcomma`         | `0xfe6e` |
+| `XK_dead_currency`         | `0xfe6f` |                              |          |
+
+#### Dead vowels and universal entry
+
+| Key                          | Keysym   | Key                      | Keysym   |
+| ---------------------------- | -------- | ------------------------ | -------- |
+| `XK_dead_a`                  | `0xfe80` | `XK_dead_A`              | `0xfe81` |
+| `XK_dead_e`                  | `0xfe82` | `XK_dead_E`              | `0xfe83` |
+| `XK_dead_i`                  | `0xfe84` | `XK_dead_I`              | `0xfe85` |
+| `XK_dead_o`                  | `0xfe86` | `XK_dead_O`              | `0xfe87` |
+| `XK_dead_u`                  | `0xfe88` | `XK_dead_U`              | `0xfe89` |
+| `XK_dead_small_schwa`        | `0xfe8a` | `XK_dead_capital_schwa`  | `0xfe8b` |
+| `XK_First_Virtual_Screen`    | `0xfed0` | `XK_Prev_Virtual_Screen` | `0xfed1` |
+| `XK_Next_Virtual_Screen`     | `0xfed2` | `XK_Last_Virtual_Screen` | `0xfed4` |
+| `XK_Terminate_Server`        | `0xfed5` | `XK_AccessX_Enable`      | `0xfe70` |
+| `XK_AccessX_Feedback_Enable` | `0xfe71` | `XK_RepeatKeys_Enable`   | `0xfe72` |
+| `XK_SlowKeys_Enable`         | `0xfe73` | `XK_BounceKeys_Enable`   | `0xfe74` |
+| `XK_StickyKeys_Enable`       | `0xfe75` | `XK_MouseKeys_Enable`    | `0xfe76` |
+| `XK_MouseKeys_Accel_Enable`  | `0xfe77` | `XK_Overlay1_Enable`     | `0xfe78` |
+| `XK_Overlay2_Enable`         | `0xfe79` | `XK_AudibleBell_Enable`  | `0xfe7a` |
+
+#### 3270 terminal keys
+
+| Key                    | Keysym   | Key                    | Keysym   |
+| ---------------------- | -------- | ---------------------- | -------- |
+| `XK_3270_Duplicate`    | `0xfd01` | `XK_3270_FieldMark`    | `0xfd02` |
+| `XK_3270_Right2`       | `0xfd03` | `XK_3270_Left2`        | `0xfd04` |
+| `XK_3270_BackTab`      | `0xfd05` | `XK_3270_EraseEOF`     | `0xfd06` |
+| `XK_3270_EraseInput`   | `0xfd07` | `XK_3270_Reset`        | `0xfd08` |
+| `XK_3270_Quit`         | `0xfd09` | `XK_3270_PA1`          | `0xfd0a` |
+| `XK_3270_PA2`          | `0xfd0b` | `XK_3270_PA3`          | `0xfd0c` |
+| `XK_3270_Test`         | `0xfd0d` | `XK_3270_Attn`         | `0xfd0e` |
+| `XK_3270_CursorBlink`  | `0xfd0f` | `XK_3270_AltCursor`    | `0xfd10` |
+| `XK_3270_KeyClick`     | `0xfd11` | `XK_3270_Jump`         | `0xfd12` |
+| `XK_3270_Ident`        | `0xfd13` | `XK_3270_Rule`         | `0xfd14` |
+| `XK_3270_Copy`         | `0xfd15` | `XK_3270_Play`         | `0xfd16` |
+| `XK_3270_Setup`        | `0xfd17` | `XK_3270_Record`       | `0xfd18` |
+| `XK_3270_ChangeScreen` | `0xfd19` | `XK_3270_DeleteWord`   | `0xfd1a` |
+| `XK_3270_ExSelect`     | `0xfd1b` | `XK_3270_CursorSelect` | `0xfd1c` |
+| `XK_3270_PrintScreen`  | `0xfd1d` | `XK_3270_Enter`        | `0xfd1e` |
+
+#### International composition
+
+| Key                    | Keysym   | Key                    | Keysym   |
+| ---------------------- | -------- | ---------------------- | -------- |
+| `XK_Multi_key`         | `0xff20` | `XK_Codeinput`         | `0xff37` |
+| `XK_SingleCandidate`   | `0xff3c` | `XK_MultipleCandidate` | `0xff3d` |
+| `XK_PreviousCandidate` | `0xff3e` |                        |          |
+
+#### Japanese keyboard support
+
+| Key                  | Keysym   | Key                    | Keysym   |
+| -------------------- | -------- | ---------------------- | -------- |
+| `XK_Kanji`           | `0xff21` | `XK_Muhenkan`          | `0xff22` |
+| `XK_Henkan_Mode`     | `0xff23` | `XK_Henkan`            | `0xff23` |
+| `XK_Romaji`          | `0xff24` | `XK_Hiragana`          | `0xff25` |
+| `XK_Katakana`        | `0xff26` | `XK_Hiragana_Katakana` | `0xff27` |
+| `XK_Zenkaku`         | `0xff28` | `XK_Hankaku`           | `0xff29` |
+| `XK_Zenkaku_Hankaku` | `0xff2a` | `XK_Touroku`           | `0xff2b` |
+| `XK_Massyo`          | `0xff2c` | `XK_Kana_Lock`         | `0xff2d` |
+| `XK_Kana_Shift`      | `0xff2e` | `XK_Eisu_Shift`        | `0xff2f` |
+| `XK_Eisu_toggle`     | `0xff30` | `XK_Kanji_Bangou`      | `0xff37` |
+| `XK_Zen_Koho`        | `0xff3d` | `XK_Mae_Koho`          | `0xff3e` |
+
+#### Latin 1 (ISO-8859-1)
+
+| Key                 | Keysym | Key                | Keysym |
+| ------------------- | ------ | ------------------ | ------ |
+| `XK_space`          | `0x20` | `XK_exclam`        | `0x21` |
+| `XK_quotedbl`       | `0x22` | `XK_numbersign`    | `0x23` |
+| `XK_dollar`         | `0x24` | `XK_percent`       | `0x25` |
+| `XK_ampersand`      | `0x26` | `XK_apostrophe`    | `0x27` |
+| `XK_quoteright`     | `0x27` | `XK_parenleft`     | `0x28` |
+| `XK_parenright`     | `0x29` | `XK_asterisk`      | `0x2a` |
+| `XK_plus`           | `0x2b` | `XK_comma`         | `0x2c` |
+| `XK_minus`          | `0x2d` | `XK_period`        | `0x2e` |
+| `XK_slash`          | `0x2f` | `XK_0`             | `0x30` |
+| `XK_1`              | `0x31` | `XK_2`             | `0x32` |
+| `XK_3`              | `0x33` | `XK_4`             | `0x34` |
+| `XK_5`              | `0x35` | `XK_6`             | `0x36` |
+| `XK_7`              | `0x37` | `XK_8`             | `0x38` |
+| `XK_9`              | `0x39` | `XK_colon`         | `0x3a` |
+| `XK_semicolon`      | `0x3b` | `XK_less`          | `0x3c` |
+| `XK_equal`          | `0x3d` | `XK_greater`       | `0x3e` |
+| `XK_question`       | `0x3f` | `XK_at`            | `0x40` |
+| `XK_A`              | `0x41` | `XK_B`             | `0x42` |
+| `XK_C`              | `0x43` | `XK_D`             | `0x44` |
+| `XK_E`              | `0x45` | `XK_F`             | `0x46` |
+| `XK_G`              | `0x47` | `XK_H`             | `0x48` |
+| `XK_I`              | `0x49` | `XK_J`             | `0x4a` |
+| `XK_K`              | `0x4b` | `XK_L`             | `0x4c` |
+| `XK_M`              | `0x4d` | `XK_N`             | `0x4e` |
+| `XK_O`              | `0x4f` | `XK_P`             | `0x50` |
+| `XK_Q`              | `0x51` | `XK_R`             | `0x52` |
+| `XK_S`              | `0x53` | `XK_T`             | `0x54` |
+| `XK_U`              | `0x55` | `XK_V`             | `0x56` |
+| `XK_W`              | `0x57` | `XK_X`             | `0x58` |
+| `XK_Y`              | `0x59` | `XK_Z`             | `0x5a` |
+| `XK_bracketleft`    | `0x5b` | `XK_backslash`     | `0x5c` |
+| `XK_bracketright`   | `0x5d` | `XK_asciicircum`   | `0x5e` |
+| `XK_underscore`     | `0x5f` | `XK_grave`         | `0x60` |
+| `XK_quoteleft`      | `0x60` | `XK_a`             | `0x61` |
+| `XK_b`              | `0x62` | `XK_c`             | `0x63` |
+| `XK_d`              | `0x64` | `XK_e`             | `0x65` |
+| `XK_f`              | `0x66` | `XK_g`             | `0x67` |
+| `XK_h`              | `0x68` | `XK_i`             | `0x69` |
+| `XK_j`              | `0x6a` | `XK_k`             | `0x6b` |
+| `XK_l`              | `0x6c` | `XK_m`             | `0x6d` |
+| `XK_n`              | `0x6e` | `XK_o`             | `0x6f` |
+| `XK_p`              | `0x70` | `XK_q`             | `0x71` |
+| `XK_r`              | `0x72` | `XK_s`             | `0x73` |
+| `XK_t`              | `0x74` | `XK_u`             | `0x75` |
+| `XK_v`              | `0x76` | `XK_w`             | `0x77` |
+| `XK_x`              | `0x78` | `XK_y`             | `0x79` |
+| `XK_z`              | `0x7a` | `XK_braceleft`     | `0x7b` |
+| `XK_bar`            | `0x7c` | `XK_braceright`    | `0x7d` |
+| `XK_asciitilde`     | `0x7e` | `XK_nobreakspace`  | `0xa0` |
+| `XK_exclamdown`     | `0xa1` | `XK_cent`          | `0xa2` |
+| `XK_sterling`       | `0xa3` | `XK_currency`      | `0xa4` |
+| `XK_yen`            | `0xa5` | `XK_brokenbar`     | `0xa6` |
+| `XK_section`        | `0xa7` | `XK_diaeresis`     | `0xa8` |
+| `XK_copyright`      | `0xa9` | `XK_ordfeminine`   | `0xaa` |
+| `XK_guillemotleft`  | `0xab` | `XK_notsign`       | `0xac` |
+| `XK_hyphen`         | `0xad` | `XK_registered`    | `0xae` |
+| `XK_macron`         | `0xaf` | `XK_degree`        | `0xb0` |
+| `XK_plusminus`      | `0xb1` | `XK_twosuperior`   | `0xb2` |
+| `XK_threesuperior`  | `0xb3` | `XK_acute`         | `0xb4` |
+| `XK_mu`             | `0xb5` | `XK_paragraph`     | `0xb6` |
+| `XK_periodcentered` | `0xb7` | `XK_cedilla`       | `0xb8` |
+| `XK_onesuperior`    | `0xb9` | `XK_masculine`     | `0xba` |
+| `XK_guillemotright` | `0xbb` | `XK_onequarter`    | `0xbc` |
+| `XK_onehalf`        | `0xbd` | `XK_threequarters` | `0xbe` |
+| `XK_questiondown`   | `0xbf` | `XK_Agrave`        | `0xc0` |
+| `XK_Aacute`         | `0xc1` | `XK_Acircumflex`   | `0xc2` |
+| `XK_Atilde`         | `0xc3` | `XK_Adiaeresis`    | `0xc4` |
+| `XK_Aring`          | `0xc5` | `XK_AE`            | `0xc6` |
+| `XK_Ccedilla`       | `0xc7` | `XK_Egrave`        | `0xc8` |
+| `XK_Eacute`         | `0xc9` | `XK_Ecircumflex`   | `0xca` |
+| `XK_Ediaeresis`     | `0xcb` | `XK_Igrave`        | `0xcc` |
+| `XK_Iacute`         | `0xcd` | `XK_Icircumflex`   | `0xce` |
+| `XK_Idiaeresis`     | `0xcf` | `XK_ETH`           | `0xd0` |
+| `XK_Eth`            | `0xd0` | `XK_Ntilde`        | `0xd1` |
+| `XK_Ograve`         | `0xd2` | `XK_Oacute`        | `0xd3` |
+| `XK_Ocircumflex`    | `0xd4` | `XK_Otilde`        | `0xd5` |
+| `XK_Odiaeresis`     | `0xd6` | `XK_multiply`      | `0xd7` |
+| `XK_Oslash`         | `0xd8` | `XK_Ooblique`      | `0xd8` |
+| `XK_Ugrave`         | `0xd9` | `XK_Uacute`        | `0xda` |
+| `XK_Ucircumflex`    | `0xdb` | `XK_Udiaeresis`    | `0xdc` |
+| `XK_Yacute`         | `0xdd` | `XK_THORN`         | `0xde` |
+| `XK_Thorn`          | `0xde` | `XK_ssharp`        | `0xdf` |
+| `XK_agrave`         | `0xe0` | `XK_aacute`        | `0xe1` |
+| `XK_acircumflex`    | `0xe2` | `XK_atilde`        | `0xe3` |
+| `XK_adiaeresis`     | `0xe4` | `XK_aring`         | `0xe5` |
+| `XK_ae`             | `0xe6` | `XK_ccedilla`      | `0xe7` |
+| `XK_egrave`         | `0xe8` | `XK_eacute`        | `0xe9` |
+| `XK_ecircumflex`    | `0xea` | `XK_ediaeresis`    | `0xeb` |
+| `XK_igrave`         | `0xec` | `XK_iacute`        | `0xed` |
+| `XK_icircumflex`    | `0xee` | `XK_idiaeresis`    | `0xef` |
+| `XK_eth`            | `0xf0` | `XK_ntilde`        | `0xf1` |
+| `XK_ograve`         | `0xf2` | `XK_oacute`        | `0xf3` |
+| `XK_ocircumflex`    | `0xf4` | `XK_otilde`        | `0xf5` |
+| `XK_odiaeresis`     | `0xf6` | `XK_division`      | `0xf7` |
+| `XK_oslash`         | `0xf8` | `XK_ooblique`      | `0xf8` |
+| `XK_ugrave`         | `0xf9` | `XK_uacute`        | `0xfa` |
+| `XK_ucircumflex`    | `0xfb` | `XK_udiaeresis`    | `0xfc` |
+| `XK_yacute`         | `0xfd` | `XK_thorn`         | `0xfe` |
+| `XK_ydiaeresis`     | `0xff` |                    |        |
+
+#### Latin 2 (Central/Eastern Europe)
+
+| Key               | Keysym  | Key               | Keysym  |
+| ----------------- | ------- | ----------------- | ------- |
+| `XK_Aogonek`      | `0x1a1` | `XK_breve`        | `0x1a2` |
+| `XK_Lstroke`      | `0x1a3` | `XK_Lcaron`       | `0x1a5` |
+| `XK_Sacute`       | `0x1a6` | `XK_Scaron`       | `0x1a9` |
+| `XK_Scedilla`     | `0x1aa` | `XK_Tcaron`       | `0x1ab` |
+| `XK_Zacute`       | `0x1ac` | `XK_Zcaron`       | `0x1ae` |
+| `XK_Zabovedot`    | `0x1af` | `XK_aogonek`      | `0x1b1` |
+| `XK_ogonek`       | `0x1b2` | `XK_lstroke`      | `0x1b3` |
+| `XK_lcaron`       | `0x1b5` | `XK_sacute`       | `0x1b6` |
+| `XK_caron`        | `0x1b7` | `XK_scaron`       | `0x1b9` |
+| `XK_scedilla`     | `0x1ba` | `XK_tcaron`       | `0x1bb` |
+| `XK_zacute`       | `0x1bc` | `XK_doubleacute`  | `0x1bd` |
+| `XK_zcaron`       | `0x1be` | `XK_zabovedot`    | `0x1bf` |
+| `XK_Racute`       | `0x1c0` | `XK_Abreve`       | `0x1c3` |
+| `XK_Lacute`       | `0x1c5` | `XK_Cacute`       | `0x1c6` |
+| `XK_Ccaron`       | `0x1c8` | `XK_Eogonek`      | `0x1ca` |
+| `XK_Ecaron`       | `0x1cc` | `XK_Dcaron`       | `0x1cf` |
+| `XK_Dstroke`      | `0x1d0` | `XK_Nacute`       | `0x1d1` |
+| `XK_Ncaron`       | `0x1d2` | `XK_Odoubleacute` | `0x1d5` |
+| `XK_Rcaron`       | `0x1d8` | `XK_Uring`        | `0x1d9` |
+| `XK_Udoubleacute` | `0x1db` | `XK_Tcedilla`     | `0x1de` |
+| `XK_racute`       | `0x1e0` | `XK_abreve`       | `0x1e3` |
+| `XK_lacute`       | `0x1e5` | `XK_cacute`       | `0x1e6` |
+| `XK_ccaron`       | `0x1e8` | `XK_eogonek`      | `0x1ea` |
+| `XK_ecaron`       | `0x1ec` | `XK_dcaron`       | `0x1ef` |
+| `XK_dstroke`      | `0x1f0` | `XK_nacute`       | `0x1f1` |
+| `XK_ncaron`       | `0x1f2` | `XK_odoubleacute` | `0x1f5` |
+| `XK_rcaron`       | `0x1f8` | `XK_uring`        | `0x1f9` |
+| `XK_udoubleacute` | `0x1fb` | `XK_tcedilla`     | `0x1fe` |
+| `XK_abovedot`     | `0x1ff` |                   |         |
+
+#### Latin 3 (South Europe)
+
+| Key              | Keysym  | Key              | Keysym  |
+| ---------------- | ------- | ---------------- | ------- |
+| `XK_Hstroke`     | `0x2a1` | `XK_Hcircumflex` | `0x2a6` |
+| `XK_Iabovedot`   | `0x2a9` | `XK_Gbreve`      | `0x2ab` |
+| `XK_Jcircumflex` | `0x2ac` | `XK_hstroke`     | `0x2b1` |
+| `XK_hcircumflex` | `0x2b6` | `XK_idotless`    | `0x2b9` |
+| `XK_gbreve`      | `0x2bb` | `XK_jcircumflex` | `0x2bc` |
+| `XK_Cabovedot`   | `0x2c5` | `XK_Ccircumflex` | `0x2c6` |
+| `XK_Gabovedot`   | `0x2d5` | `XK_Gcircumflex` | `0x2d8` |
+| `XK_Ubreve`      | `0x2dd` | `XK_Scircumflex` | `0x2de` |
+| `XK_cabovedot`   | `0x2e5` | `XK_ccircumflex` | `0x2e6` |
+| `XK_gabovedot`   | `0x2f5` | `XK_gcircumflex` | `0x2f8` |
+| `XK_ubreve`      | `0x2fd` | `XK_scircumflex` | `0x2fe` |
+
+#### Latin 4 (Baltic/Nordic)
+
+| Key            | Keysym  | Key          | Keysym  |
+| -------------- | ------- | ------------ | ------- |
+| `XK_kra`       | `0x3a2` | `XK_kappa`   | `0x3a2` |
+| `XK_Rcedilla`  | `0x3a3` | `XK_Itilde`  | `0x3a5` |
+| `XK_Lcedilla`  | `0x3a6` | `XK_Emacron` | `0x3aa` |
+| `XK_Gcedilla`  | `0x3ab` | `XK_Tslash`  | `0x3ac` |
+| `XK_rcedilla`  | `0x3b3` | `XK_itilde`  | `0x3b5` |
+| `XK_lcedilla`  | `0x3b6` | `XK_emacron` | `0x3ba` |
+| `XK_gcedilla`  | `0x3bb` | `XK_tslash`  | `0x3bc` |
+| `XK_ENG`       | `0x3bd` | `XK_eng`     | `0x3bf` |
+| `XK_Amacron`   | `0x3c0` | `XK_Iogonek` | `0x3c7` |
+| `XK_Eabovedot` | `0x3cc` | `XK_Imacron` | `0x3cf` |
+| `XK_Ncedilla`  | `0x3d1` | `XK_Omacron` | `0x3d2` |
+| `XK_Kcedilla`  | `0x3d3` | `XK_Uogonek` | `0x3d9` |
+| `XK_Utilde`    | `0x3dd` | `XK_Umacron` | `0x3de` |
+| `XK_amacron`   | `0x3e0` | `XK_iogonek` | `0x3e7` |
+| `XK_eabovedot` | `0x3ec` | `XK_imacron` | `0x3ef` |
+| `XK_ncedilla`  | `0x3f1` | `XK_omacron` | `0x3f2` |
+| `XK_kcedilla`  | `0x3f3` | `XK_uogonek` | `0x3f9` |
+| `XK_utilde`    | `0x3fd` | `XK_umacron` | `0x3fe` |
+
+#### Latin 8 (Romanian)
+
+| Key              | Keysym      | Key              | Keysym      |
+| ---------------- | ----------- | ---------------- | ----------- |
+| `XK_Wcircumflex` | `0x1000174` | `XK_wcircumflex` | `0x1000175` |
+| `XK_Ycircumflex` | `0x1000176` | `XK_ycircumflex` | `0x1000177` |
+| `XK_Babovedot`   | `0x1001e02` | `XK_babovedot`   | `0x1001e03` |
+| `XK_Dabovedot`   | `0x1001e0a` | `XK_dabovedot`   | `0x1001e0b` |
+| `XK_Fabovedot`   | `0x1001e1e` | `XK_fabovedot`   | `0x1001e1f` |
+| `XK_Mabovedot`   | `0x1001e40` | `XK_mabovedot`   | `0x1001e41` |
+| `XK_Pabovedot`   | `0x1001e56` | `XK_pabovedot`   | `0x1001e57` |
+| `XK_Sabovedot`   | `0x1001e60` | `XK_sabovedot`   | `0x1001e61` |
+| `XK_Tabovedot`   | `0x1001e6a` | `XK_tabovedot`   | `0x1001e6b` |
+| `XK_Wgrave`      | `0x1001e80` | `XK_wgrave`      | `0x1001e81` |
+| `XK_Wacute`      | `0x1001e82` | `XK_wacute`      | `0x1001e83` |
+| `XK_Wdiaeresis`  | `0x1001e84` | `XK_wdiaeresis`  | `0x1001e85` |
+| `XK_Ygrave`      | `0x1001ef2` | `XK_ygrave`      | `0x1001ef3` |
+
+#### Latin 9 (Euro and Ij ligature)
+
+| Key             | Keysym   | Key     | Keysym   |
+| --------------- | -------- | ------- | -------- |
+| `XK_OE`         | `0x13bc` | `XK_oe` | `0x13bd` |
+| `XK_Ydiaeresis` | `0x13be` |         |          |
+
+## Appendix C: Glossary
+
+| Term                        | Meaning                                                                                 |
+| --------------------------- | --------------------------------------------------------------------------------------- |
+| Alpha channel               | The fourth byte of a color: how opaque the pixel is (0 transparent, 255 solid)          |
+| Backend                     | The piece of MiniLibX that talks to one specific graphics system (XCB, Wayland, AppKit) |
+| Blit                        | Copying a whole image onto the window in one operation (`mlx_put_image_to_window`)      |
+| bpp (bits per pixel)        | How many bits one pixel occupies; 32 bpp = 4 bytes per pixel                            |
+| Callback                    | A function you register; MiniLibX calls it when an event happens                        |
+| Compositor                  | The program that puts all windows together on screen (used by Wayland)                  |
+| Delta time                  | The time between two frames; you measure it to make motion speed constant               |
+| Double buffering            | Drawing in a private buffer and showing it only when complete, to avoid flicker         |
+| Event loop                  | The endless cycle that waits for events and dispatches them to your callbacks           |
+| Expose                      | An event meaning "a part of your window needs to be redrawn" (X11 only, once usually)   |
+| Framebuffer                 | A region of memory holding one pixel value per screen position; here, an MLX image      |
+| Hook                        | Another name for registering a callback                                                 |
+| Keycode                     | The physical identity of a key on the keyboard (hardware dependent)                     |
+| Keysym                      | The logical meaning of a key, X11 style (`a` = 97, Escape = 65307)                      |
+| mlx_ptr / win_ptr / img_ptr | Identifiers: connection / window / image; opaque integers you pass back to MiniLibX     |
+| Stride                      | Bytes per row in a buffer, padding included; `size_line` in the wrapper                 |
+| Wheel                       | A `.whl` file: the package format used to install the mlx Python library                |
+| XCB / Wayland / AppKit      | The three backends MiniLibX supports: Linux X11, Linux Wayland, macOS                   |
