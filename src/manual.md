@@ -548,41 +548,124 @@ pixel, the specified _string_ will be displayed at ( _x_ , _y_ ).
 Both functions will discard any display outside the window. This makes
 **mlx_pixel_put** slow. Consider using images instead.
 
+Think of the window as a spreadsheet made of pixels: columns are _x_, rows
+are _y_, and the first cell is (0, 0) in the top-left corner. Writing a pixel
+means filling in one cell; anything drawn beyond the last cell is simply
+ignored.
+
+#### What happens when you draw a pixel
+
+It helps to know what a single call sets in motion:
+
+1. Your Python call crosses into the C library through ctypes.
+2. MiniLibX turns `(x, y, color)` into the drawing primitive of the active
+   backend: an X11 request, a Wayland buffer write, or a CoreGraphics call.
+3. The backend hands it to the display server, which composites it into the
+   window you see on screen.
+4. Control comes back to your program, ready for the next call.
+
+Steps 2 to 4 happen for **every single pixel**. That is the price of drawing
+this way: filling a 640×480 window takes over 300 000 individual calls, each
+one talking to the graphics system. [Manipulating
+images](#manipulating-images) replaces all of them with a single call.
+
 ### Color management
 
-The _color_ parameter has an unsigned integer type. The displayed colour needs
+The _color_ parameter has an unsigned integer type. The displayed color needs
 to be encoded in this integer, following a defined scheme. All displayable
-colours can be split in 3 basic colours: red, green and blue. Three associated
-values, in the 0-255 range, represent how much of each colour is mixed up to
-create the original colour. The fourth byte represents transparency, where 0 is fully transparent and 255
-opaque.
+colors can be split in 3 basic colors: red, green and blue. Three associated
+values, in the 0-255 range, represent how much of each color is mixed up to
+create the original color. The fourth byte is the alpha channel: 0 means fully
+transparent and 255 fully opaque.
+
+> [!NOTE]
+> The fourth byte is an **opacity** channel following the GPU standard (0 fully
+> transparent, 255 opaque). Historically MiniLibX used it the other way round,
+> as a transparency value; that is no longer the case. Also note that
+> **mlx_string_put**() forces this byte to 255, so the text it draws is always
+> fully opaque.
 
 These four values must be set inside the unsigned integer to display the right
-colour. The bytes of this integer are filled in 32-bit color packing (little-endian), as shown in the picture below:
+color. The bytes of this integer are filled in 32-bit color packing (little-endian), as shown in the picture below:
 
 ![A color is packed into a 32-bit integer as four bytes: blue, green, red and alpha.](media/diagram-color-bytes.svg)
 
 While filling the integer, make sure you avoid endian problems.
 
-Example: the \"blue\" byte will be the least significant byte inside the integer
+Example: the "blue" byte will be the least significant byte inside the integer
 on a little endian machine.
 
+In practice, you rarely juggle bytes by hand: build the integer with shifts,
+and let Python do the packing:
+
+```python
+def rgba(r, g, b, a=255):
+    return (a << 24) | (r << 16) | (g << 8) | b
+
+red = rgba(255, 0, 0)          # 0xFFFF0000
+semi_blue = rgba(0, 0, 255, 128)  # 0x800000FF
+```
+
+To recover the channels from a packed color, shift the other way:
+
+```python
+a = (color >> 24) & 0xFF
+r = (color >> 16) & 0xFF
+g = (color >> 8) & 0xFF
+b = color & 0xFF
+```
+
+| You want        | `rgba()` call          | Integer      | Bytes in memory (format 0) |
+| --------------- | ---------------------- | ------------ | -------------------------- |
+| Red, opaque     | `rgba(255, 0, 0)`      | `0xFFFF0000` | `00 00 FF FF`              |
+| Green, opaque   | `rgba(0, 255, 0)`      | `0xFF00FF00` | `00 FF 00 FF`              |
+| Blue, opaque    | `rgba(0, 0, 255)`      | `0xFF0000FF` | `FF 00 00 FF`              |
+| Blue, 50% alpha | `rgba(0, 0, 255, 128)` | `0x800000FF` | `FF 00 00 80`              |
+
+Try to guess before looking at the answers: `0xFF00FF00` is opaque green,
+`0x80FF0000` is red at 50% alpha.
+
+One last subtlety: `mlx_pixel_put()` and `mlx_string_put()` take the packed
+integer, but when you write pixels through the `memoryview` returned by
+`mlx_get_data_addr()` you are writing **raw bytes**; there you assign
+`bytes([blue, green, red, alpha])` directly (see [Storing colors inside
+images](#storing-colors-inside-images)). The integer and the bytes are the
+same color seen from two different levels.
+
+_In one sentence:_ a color is just a 32-bit number: pack it with `rgba()`
+for `mlx_pixel_put()`, or write its four bytes directly into an image buffer.
+
 ## Manipulating images
+
+Drawing pixel by pixel into the window is slow, because every call has to
+talk to the graphics system. Images solve this: you draw into an off-screen
+buffer (a canvas that lives in memory) and then stamp the whole picture
+onto the window in a single call. This is the technique every real MiniLibX
+project uses.
+
+Why is it so much better? Two reasons. First, one trip to the graphics
+system instead of thousands. Second, and just as important: the user never
+sees your half-finished drawing. You paint the complete frame in private and
+only show it when it is done, like writing a full page before turning it
+around. If you drew straight onto the visible window, every intermediate
+pixel would be visible (flickering included). This technique has a name:
+double buffering, because you keep the visible picture and your private
+canvas as two separate buffers.
 
 ### Synopsis
 
 ```python
 def mlx_new_image(mlx_ptr: int | None, width: int, height: int) -> int | None: # void *
 
-def mlx_get_data_addr(img_ptr: int | None) -> Tuple[memoryview, int, int, int]: # (pixels, bits_per_pixel, size_line, format)
+def mlx_get_data_addr(img_ptr: int | None) -> tuple[memoryview, int, int, int]: # (pixels, bits_per_pixel, size_line, format)
 
 def mlx_put_image_to_window(mlx_ptr: int | None, win_ptr: int | None, img_ptr: int | None, x: int, y: int) -> int:
 
-def mlx_xpm_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
+def mlx_xpm_file_to_image(mlx_ptr: int | None, filename: str) -> tuple[int | None, int, int]: # (image: void *, width, height)
 
-def mlx_png_file_to_image(mlx_ptr: int | None, filename: str) -> Tuple[Optional[int], int, int]: # (image: void *, width, height)
+def mlx_png_file_to_image(mlx_ptr: int | None, filename: str) -> tuple[int | None, int, int]: # (image: void *, width, height)
 
-    def mlx_destroy_image(mlx_ptr: int | None, img_ptr: int | None) -> int:
+def mlx_destroy_image(mlx_ptr: int | None, img_ptr: int | None) -> int:
 ```
 
 ### Description
