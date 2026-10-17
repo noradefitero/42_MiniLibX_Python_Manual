@@ -11,7 +11,6 @@ abstract: >
 author: "Nora de Fitero Teijeira (noradefitero)"
 titlepage-logo: "media/42_MiniLibX_Python_Manual.jpg"
 logo-width: 300px
-lof: true
 acknowledgements: >
   The original MiniLibX documentation was created by Olivier Crouzet under the
   MIT license. This is a derivative work based on his work, created on a
