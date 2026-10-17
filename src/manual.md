@@ -844,28 +844,52 @@ to the window defined by the _win_ptr_ identifier. The _param_ address will be
 passed back to your function every time it is called, and should be used to
 store the parameters it might need.
 
+> [!IMPORTANT]
+> `mlx_key_hook()` fires when a key is **released**, not when it is pressed.
+> To react to key presses you need the generic `mlx_hook()` with the KeyPress
+> event (number 2); see [Going further with events](#going-further-with-events).
+
 The syntax for the **mlx_loop_hook**() function is similar to the previous
 ones, but the given function will be called when no event occurs, and is not
 bound to a specific window.
 
 When it catches an event, the MiniLibX calls the corresponding function with
-fixed parameters:
+fixed parameters. Under the hood, everything is an X11 event with a number,
+and the convenience hooks are just shortcuts for the most common ones:
 
-```c
-expose_hook(void *param);
-key_hook(unsigned int keycode, void *param);
-mouse_hook(unsigned int button, unsigned int x, unsigned int y, void *param);
-loop_hook(void *param);
-```
+| X11 event     | Number | Callback parameters     | Convenience hook     |
+| ------------- | ------ | ----------------------- | -------------------- |
+| KeyPress      | 2      | `(keycode, param)`      | (none)               |
+| KeyRelease    | 3      | `(keycode, param)`      | `mlx_key_hook`       |
+| ButtonPress   | 4      | `(button, x, y, param)` | `mlx_mouse_hook`     |
+| ButtonRelease | 5      | `(button, x, y, param)` | (none)               |
+| MotionNotify  | 6      | `(x, y, param)`         | (none)               |
+| Expose        | 12     | `(param,)`              | `mlx_expose_hook`    |
+| ClientMessage | 33     | `(param,)`              | (none), window close |
 
-These function names are arbitrary. They here are used to distinguish parameters
-according to the event. These functions are NOT part of the MiniLibX.
-
-_param_ is the address specified in the mlx\_\*\_hook calls. This address is
+_param_ is the address specified in the `mlx_*_hook` calls. This address is
 never used nor modified by the MiniLibX. On key and mouse events, additional
 information is passed: _keycode_ tells you which key was released (we list the
-common keycodes just below), ( _x_ , _y_ ) are the coordinates of the mouse
+common keysyms just below), ( _x_ , _y_ ) are the coordinates of the mouse
 click in the window, and _button_ tells you which mouse button was pressed.
+
+#### What happens when you press a key
+
+Following one keypress from the hardware to your own code makes the whole
+design click:
+
+1. The keyboard sends a scan code to the operating system.
+2. The display server turns it into a key event carrying a **keycode** (which
+   physical key) and a **keysym** (which character).
+3. MiniLibX receives the event and looks up the callback you registered for
+   KeyPress (event 2).
+4. It calls your callback as `callback(keycode, param)`.
+5. Your function updates your own state and returns immediately.
+6. `mlx_loop()` goes back to waiting for the next event.
+
+Step 5 is the idea worth remembering: the callback changes variables, it does
+not draw. The drawing happens once per frame in the loop hook. That is the
+game loop you will write in [Try it yourself](#try-it-yourself).
 
 ### Callbacks in Python
 
@@ -878,21 +902,62 @@ click in the window, and _button_ tells you which mouse button was pressed.
 
 The _param_ argument is the same Python object you passed when registering the
 hook: the wrapper keeps it and gives it back to you on every call. The return
-value of the callback is ignored. To remove a hook, call the same function again
-with `None` as the callback.
+value of the callback is ignored, and the registration functions themselves
+return `0`. To remove a hook, call the same function again with `None` as the
+callback.
 
-Keycodes follow the X11 keysym convention: the space bar is 32, and special keys
+For games you usually want to know which keys are held _right now_. The
+pattern is: turn auto-repeat off, track presses and releases in a `set`, and
+read that set every frame:
+
+```python
+pressed = set()
+
+m.mlx_do_key_autorepeatoff(mlx_ptr)
+m.mlx_hook(win_ptr, 2, 1, lambda k, p: pressed.add(k), None)      # KeyPress
+m.mlx_hook(win_ptr, 3, 2, lambda k, p: pressed.discard(k), None)  # KeyRelease
+```
+
+The set-based pattern is also robust on Wayland, where the auto-repeat
+functions may be no-ops, because it does not rely on repeated events.
+
+Key values follow the X11 keysym convention: the space bar is 32, and special keys
 such as Escape (0xFF1B), Return (0xFF0D) or the arrow keys (0xFF51-0xFF54) keep
 the same values on the three platforms (XCB, Wayland via xkb, macOS via a
 translation table). The package does not define key constants, so print the
-_keynum_ to discover the values.
+_keynum_ to discover the values. Here are the most common ones:
+
+| Key                      | Keysym        | Decimal     |
+| ------------------------ | ------------- | ----------- |
+| Space                    | 0x20          | 32          |
+| Digits `0`–`9`           | 0x30–0x39     | 48–57       |
+| Letters `a`–`z`          | 0x61–0x7A     | 97–122      |
+| Backspace                | 0xFF08        | 65288       |
+| Tab                      | 0xFF09        | 65289       |
+| Return                   | 0xFF0D        | 65293       |
+| Escape                   | 0xFF1B        | 65307       |
+| Home                     | 0xFF50        | 65360       |
+| Left / Up / Right / Down | 0xFF51–0xFF54 | 65361–65364 |
+| Page Up                  | 0xFF55        | 65365       |
+| Page Down                | 0xFF56        | 65366       |
+| End                      | 0xFF57        | 65367       |
+| Delete                   | 0xFFFF        | 65535       |
+
+> [!WARNING]
+> The `keynum` you receive is an X11 **keysym**, not a physical keycode: for
+> printable characters it simply matches the ASCII code (`a` is 97, `A` is
+> 65, `0` is 48). Do not copy raw X11 keycode tables into your program; they
+> use completely different numbers.
+
+The complete keysym tables, together with every X11 event number and event
+mask, are collected in [Appendix B](#appendix-b-keysyms-events-and-masks).
 
 ### Going further with events
 
 The MiniLibX provides a much more generic access to other available events. The
-_mlx.h_ include defines **mlx_hook()** in the same manner mlx\_\*\_hook functions
+_mlx.h_ include defines **mlx_hook()** in the same manner `mlx_*_hook` functions
 work. The event and mask values will be taken from the historical X11 include
-file \"X.h\". Some Wayland and macOS events are mapped to these values when it
+file "X.h". Some Wayland and macOS events are mapped to these values when it
 makes sense, and the mask may not be used in some configurations.
 
 See source code of the MiniLibX to find out how it will call your own function
@@ -905,7 +970,28 @@ key events [2, 3] receive ( _keycode_ , _param_ ), mouse events [4, 5] receive
 _param_ ), and every other event receives only ( _param_ ,). The mask can be
 ignored in some configurations.
 
+A common use is the title-bar close button: event 33 (`WM_DELETE_WINDOW`)
+fires when the user clicks it, and the usual response is to leave the loop:
+
+```python
+def on_close(param):
+    m.mlx_loop_exit(mlx_ptr)
+
+m.mlx_hook(win_ptr, 33, 0, on_close, None)
+```
+
+The full lists of event numbers, event masks and keysyms live in
+[Appendix B](#appendix-b-keysyms-events-and-masks).
+
+_In one sentence:_ register your callbacks before `mlx_loop()`, remember that
+`mlx_key_hook()` fires on release (event 2 is the press), and the loop will
+deliver everything from there.
+
 ## Extra functions
+
+Everything that did not fit anywhere else: mouse cursor tricks, keyboard
+auto-repeat, screen size, and explicit synchronization with the graphics
+system.
 
 ### Synopsis
 
