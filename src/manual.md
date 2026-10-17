@@ -104,25 +104,50 @@ These lists cover building from source. MiniLibX is supported on Linux (XCB back
 
 #### Homebrew (macOS)
 
+The macOS build uses the AppKit backend, which needs a Vulkan implementation on
+top of Metal.
+
 - Xcode command-line tools (`xcode-select --install`)
 
 ```bash
-brew install vulkan-loader vulkan-tools
+brew install vulkan-loader vulkan-tools molten-vk
 ```
+
+MoltenVK provides the `libMoltenVK.dylib` driver the AppKit backend links
+against; `configure.sh` reports it as missing, and the build fails without it.
 
 #### Arch Linux
 
+XCB backend (the default):
+
 ```bash
-sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-tools shaderc
+sudo pacman -S libxcb xcb-util-keysyms zlib libbsd vulkan-icd-loader vulkan-headers vulkan-tools shaderc
+```
+
+Wayland backend (optional):
+
+```bash
+sudo pacman -S wayland wayland-protocols libxkbcommon
 ```
 
 shaderc is only needed to recompile the shaders; the precompiled ones are shipped with the library.
 
 #### Debian/Ubuntu
 
+XCB backend (the default):
+
 ```bash
-sudo apt install libxcb libxcb-keysyms libvulkan libz libbsd glslc
+sudo apt install libxcb1-dev libxcb-keysyms1-dev libvulkan-dev zlib1g-dev libbsd-dev glslc
 ```
+
+Wayland backend (optional):
+
+```bash
+sudo apt install libwayland-dev libxkbcommon-dev wayland-protocols libwayland-bin
+```
+
+These are the development packages (the ones needed to compile). The linker
+flags they provide are `-lxcb -lxcb-keysyms -lvulkan -lz -lbsd`.
 
 ### Build source code (Recommended way)
 
@@ -148,7 +173,7 @@ Then compile MiniLibX:
 make
 ```
 
-A Python package similar to the following should appear in the root of the repository: mlx-X.X-py3-none-any.whl
+A Python package named after the library version should appear in the root of the repository (currently `mlx-2.4-py3-none-any.whl`).
 
 ### Get the compiled package from intra (not recommended)
 
@@ -183,7 +208,7 @@ source .venv/bin/activate.fish
 And install the package:
 
 ```bash
-pip install mlx-X.X-py3-none-any.whl
+pip install mlx-2.4-py3-none-any.whl
 ```
 
 > [!TIP]
