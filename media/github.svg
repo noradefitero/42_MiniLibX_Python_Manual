@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
   <style>
     path {
-      fill: oklch(0.35 0.12 250);
+      fill: oklch(0.15 0.02 280);
     }
 
     @media (prefers-color-scheme: dark) {
       path {
-        fill: oklch(0.85 0.12 250);
+        fill: oklch(0.93 0.02 280);
       }
     }
   </style>
