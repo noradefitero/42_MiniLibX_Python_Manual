@@ -411,7 +411,35 @@ execute the function and return whatever the function returns.
 
 ![The Python wrapper bridges Python method calls to the C MiniLibX library through ctypes, which then talks to the OS graphics subsystem.](media/diagram-python-c-bridge.svg)
 
+### Wrapper conventions
+
+Three things differ from the C API, and they matter in everyday Python code:
+
+- Functions that create resources (`mlx_init()`, `mlx_new_window()`,
+  `mlx_new_image()`) return `None` when they fail, instead of raising an
+  exception. Always check the result.
+- C functions that hand back extra values through pointer arguments become
+  Python methods that return a tuple, and the status comes first:
+
+```python
+status, width, height = m.mlx_get_screen_size(mlx_ptr)
+status, x, y = m.mlx_mouse_get_pos(win_ptr)
+img, width, height = m.mlx_png_file_to_image(mlx_ptr, "sprite.png")
+```
+
+- `mlx_get_data_addr()` returns a writable `memoryview`, so you can modify
+  image pixels with plain Python slice assignment.
+
+> [!IMPORTANT]
+> Forgetting the leading status when unpacking these tuples is the most common
+> beginner mistake: `width, height = m.mlx_get_screen_size(mlx_ptr)` fails at
+> runtime. The status is always the first element.
+
 ## Initialization and cleanup
+
+Every program starts here: a connection to the graphics system, and a polite
+goodbye when you are done. Think of _mlx_ptr_ as the phone line to the display
+server: every other function needs it to know where to send its orders.
 
 ### Synopsis
 
