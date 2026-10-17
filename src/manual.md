@@ -240,10 +240,15 @@ def mykey(keynum, mystuff):
 
 m = Mlx()
 mlx_ptr = m.mlx_init()
+if mlx_ptr is None:
+    raise RuntimeError("mlx_init() failed")
 win_ptr = m.mlx_new_window(mlx_ptr, 200, 200, "test")
+if win_ptr is None:
+    raise RuntimeError("mlx_new_window() failed")
 m.mlx_clear_window(mlx_ptr, win_ptr)
+# 255 = blue, fully opaque (see Color management)
 m.mlx_string_put(mlx_ptr, win_ptr, 20, 20, 255, "Hello PyMlx!")
-(ret, w, h) = m.mlx_get_screen_size(mlx_ptr)
+(status, w, h) = m.mlx_get_screen_size(mlx_ptr)
 print(f"Got screen size: {w} x {h} .")
 
 stuff = [1, 2]
@@ -253,53 +258,108 @@ m.mlx_key_hook(win_ptr, mykey, stuff)
 m.mlx_loop(mlx_ptr)
 ```
 
+Let's walk through it, because this script contains the whole skeleton of
+every MiniLibX program:
+
+- `m = Mlx()` creates the Python object that will talk to the C library (see
+  [The MLX Wrapper](#the-mlx-wrapper)).
+- `mlx_init()` opens the connection to the graphics system. It returns the
+  connection identifier `mlx_ptr`, or `None` if it fails.
+- `mlx_new_window()` creates the window on that connection. It returns the
+  window identifier `win_ptr`, or `None` if it fails.
+- `mlx_clear_window()` paints the window black so we start from a clean
+  canvas.
+- `mlx_string_put()` writes text at (20, 20). The `255` is a color encoded in
+  a single integer (see [Color management](#color-management)).
+- `mlx_get_screen_size()` returns a `(status, width, height)` tuple; the
+  status always comes first.
+- `mlx_mouse_hook()` and `mlx_key_hook()` register the functions MiniLibX
+  will call when the mouse or the keyboard is used.
+- `mlx_loop()` hands control to the event loop (see [Handle
+  events](#handle-events)): from now on, your program only runs inside
+  callbacks.
+
 > [!IMPORTANT]
 > This first example never quits on its own: it runs until you stop it. While
 > `mlx_loop()` is running, Python can't catch `Ctrl-C`, so press `Ctrl-\` to
 > kill the program. If you'd rather quit gracefully, the next example shows how.
 
-#### A simple game loop
+#### A game loop with images and delta time
 
-When the program has no pending events, MiniLibX calls the function registered with **mlx_loop_hook**(); this makes it the right place to redraw the scene once per frame. The loop keeps running until **mlx_loop_exit**() is called, for example from a key callback. The key callback receives the keycode and the user parameter, while the loop callback only receives the user parameter.
+The previous loop draws with `mlx_clear_window()` and `mlx_string_put()`,
+which is fine for a demo. A real game loop follows a different recipe, and
+this is the pattern every serious MiniLibX project uses:
+
+1. Create **one** image the size of the window. It is your off-screen
+   framebuffer: a canvas you can rewrite freely, without the graphics system
+   watching every pixel.
+2. Every frame: clear the buffer, draw your scene into it, and stamp it onto
+   the window with a single `mlx_put_image_to_window()` call.
+3. Measure the time between frames yourself; MiniLibX does not provide a
+   delta time.
+4. Track which keys are held with a `set` instead of relying on repeated
+   events.
 
 ```python
+import time
+
 from mlx import Mlx
 
 m = Mlx()
 mlx_ptr = m.mlx_init()
-if mlx_ptr is None:
-    raise RuntimeError("mlx_init() failed")
 win_ptr = m.mlx_new_window(mlx_ptr, 640, 480, "Game loop")
+img_ptr = m.mlx_new_image(mlx_ptr, 640, 480)
+pixels, bpp, size_line, fmt = m.mlx_get_data_addr(img_ptr)
+
+pressed = set()  # keys held right now
+last = time.monotonic()
 
 
-def mykey(keynum, param):
-    if keynum == 32:  # space
-        m.mlx_loop_exit(mlx_ptr)
+def frame(param):
+    global last
+    now = time.monotonic()
+    dt = now - last  # seconds since last frame
+    last = now
+    m.mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)  # buffer is ours again
+    pixels[:] = b"\x00" * len(pixels)  # clear to black
+    # ... draw your scene here, using `pressed` and `dt` ...
+    m.mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, 0, 0)
 
 
-def render(param):
-    m.mlx_clear_window(mlx_ptr, win_ptr)
-    m.mlx_string_put(mlx_ptr, win_ptr, 10, 10, 255, "Hello PyMlx!")
-    return 0
+def on_press(keycode, param):
+    pressed.add(keycode)
 
 
-m.mlx_key_hook(win_ptr, mykey, None)
-m.mlx_loop_hook(mlx_ptr, render, None)
+def on_release(keycode, param):
+    pressed.discard(keycode)
+
+
+m.mlx_hook(win_ptr, 2, 1, on_press, None)  # KeyPress
+m.mlx_hook(win_ptr, 3, 2, on_release, None)  # KeyRelease
+m.mlx_do_key_autorepeatoff(mlx_ptr)
+m.mlx_loop_hook(mlx_ptr, frame, None)
 m.mlx_loop(mlx_ptr)
+m.mlx_destroy_image(mlx_ptr, img_ptr)
+m.mlx_destroy_window(mlx_ptr, win_ptr)
 m.mlx_release(mlx_ptr)
 ```
 
+Don't worry if the event numbers (2, 3) and the sync call look magical yet:
+[Handle events](#handle-events) explains the hooks and
+[Flush and sync functions](#flush-and-sync-functions) explains
+`SYNC_IMAGE_WRITABLE`. The important idea is the recipe above: one buffer,
+one blit per frame.
+
 ## The MLX Wrapper
 
-Although it may seem surprising, when we call `mlx_new_window(mlx_ptr, 200, 200, "test")` from the Python script we just wrote, we aren’t actually communicating with MinilibX yet. This library is written in C and only works in C, which in turn only accepts calls from other C functions—so that means no Python, right?
+The package you install exposes a class called Mlx. But MiniLibX itself is a
+C library, and its functions can only be called from C code. The Mlx class is
+a thin wrapper: every time you call one of its methods, it converts your
+Python arguments into strictly typed C data, calls the real C function, and
+converts the result back into Python. You write Python, but the heavy lifting
+still happens inside the original C library.
 
-Okay, but what if we told the Python interpreter that every time we wanted to call a C function, it should take all the arguments and other data and load them into memory in a strictly typed manner—as if it were a C program—and call that C function as if it were a C program, then store the response in a variable as if it were C? Well, we’d be using a C program from within Python.
-
-Well, you’ve just discovered how the vast majority of large-scale programming projects work. Every language has its advantages and disadvantages, but with methods like this, we can use one language from within another, and thus take advantage of the best of each.
-
-That’s why what we’re actually using isn’t MinilibX itself, but rather the MinilibX Python wrapper—or, more precisely, a library full of functions that tell Python how to call other C functions and return the results to you.
-
-Let’s take a closer look at how it works.
+Let's take a closer look at how it works.
 
 ### How does the wrapper work?
 
