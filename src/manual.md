@@ -471,12 +471,20 @@ If **mlx_init()** fails to set up the connection to the display, it will return
 If **mlx_init**() set up the connection to the display correctly, it will return
 an **int as a pointer**; otherwise, it returns **None**.
 
+_In one sentence:_ `mlx_init()` opens the line to the graphics system,
+`mlx_release()` hangs up, and every other function borrows that line while
+it is open.
+
 ## Managing windows
+
+Once the connection is open, you need somewhere to draw. Windows are your
+canvases on screen: MiniLibX can manage several of them at once, each with its
+own size, title and hooks.
 
 ### Synopsis
 
 ```python
-def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str ) -> int | None: # void *
+def mlx_new_window(mlx_ptr: int | None, width: int, height: int, title: str) -> int | None: # void *
 
 def mlx_clear_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 
@@ -487,7 +495,7 @@ def mlx_destroy_window(mlx_ptr: int | None, win_ptr: int | None) -> int:
 
 The **mlx_new_window**() function creates a new window on the screen, using the
 _width_ and _height_ parameters to determine its size, and _title_ as the text
-that should be displayed in the window\'s title bar.
+that should be displayed in the window's title bar.
 
 The _mlx_ptr_ parameter is the connection identifier returned by **mlx_init**()
 (see the **mlx** man page). **mlx_new_window**() returns a _void \*_ window
@@ -508,14 +516,23 @@ identifier.
 
 **mlx_clear_window**() and **mlx_destroy_window**() return 0.
 
+_In one sentence:_ windows are your canvases on screen: create them, draw on
+them, and destroy them only after the loop has ended.
+
 ## Drawing inside windows
+
+The simplest way to put something on screen is to color a single pixel.
+`mlx_pixel_put()` and `mlx_string_put()` draw directly into a window: easy to
+use and perfect for learning, but slow when you need thousands of pixels. Use
+them to experiment and debug; use [images](#manipulating-images) for real
+rendering.
 
 ### Synopsis
 
 ```python
 def mlx_pixel_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int) -> int:
 
-    def mlx_string_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int, string: str) -> int:
+def mlx_string_put(mlx_ptr: int | None, win_ptr: int | None, x: int, y: int, color: int, string: str) -> int:
 ```
 
 ### Description
