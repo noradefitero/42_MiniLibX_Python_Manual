@@ -375,7 +375,7 @@ def __init__(self):
     # ...
 ```
 
-- \_\_file\_\_ is a special Python variable that contains the path to the file
+- `__file__` is a special Python variable that contains the path to the file
   where this code is executed.
 
 - os.path.dirname extracts the path from `__file__` and uses os.path.join to
