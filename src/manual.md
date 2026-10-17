@@ -687,10 +687,10 @@ user to modify it later. The _img_ptr_ parameter specifies the image to use. It
 returns the tuple ( _pixels_ , _bits_per_pixel_ , _size_line_ , _format_ ).
 _pixels_ is a writable memoryview over the image buffer (bytes: _height_ \*
 _size_line_ ). _bits_per_pixel_ is the number of bits needed to represent a
-pixel colour (also called the depth of the image). _size_line_ is the number of
+pixel color (also called the depth of the image). _size_line_ is the number of
 bytes used to store one line of the image in memory (the stride); this
 information is needed to move from one line to another in the image. _format_
-tells you how each pixel colour in the image is structured.
+tells you how each pixel color in the image is structured.
 
 Currently only 2 values are defined:
 
@@ -699,19 +699,31 @@ Currently only 2 values are defined:
 
 The offset of a pixel is computed as
 `offset = y * size_line + x * (bits_per_pixel // 8)`; the following 4 bytes are
-the colour of that pixel.
+the color of that pixel.
+
+> [!WARNING]
+> `size_line` is the stride, and it is not always `width * 4`: the graphics
+> driver may add padding bytes at the end of every row to align rows in
+> memory. If you compute offsets with `width * 4` instead of `size_line`, your
+> pixels will land diagonally or in the wrong place.
+
+A concrete example: a 300-pixel-wide image has 1200 bytes of pixel data per
+row, but `size_line` may be 1216 (1200 plus 16 bytes of padding). The pixel
+at (2, 1) then lives at `offset = 1 * 1216 + 2 * 4 = 1224`, not at
+`1 * 1200 + 2 * 4 = 1208`.
 
 **mlx_destroy_image** destroys the given image ( _img_ptr_ ).
 
-### Storing colours inside images
+### Storing colors inside images
 
-Depending on the graphic system, the number of bits used to store a pixel colour
+Depending on the graphic system, the number of bits used to store a pixel color
 used to be different from one hardware to another. Today, the way the user
-usually represents a colour, in the ARGB mode, almost always matches the
+usually represents a color, in the ARGB mode, almost always matches the
 hardware capabilities on modern computers.
 
-Keep in mind that packing the 4-byte ARGB into an unsigned int depends on the
-local computer's endian. Adjust your code accordingly.
+The color packing rules described in [Color management](#color-management)
+apply here too, and they depend on the local computer's endianness; adjust your
+code accordingly.
 
 You can paint a pixel by writing directly into the writable memoryview returned
 by **mlx_get_data_addr**():
@@ -727,6 +739,12 @@ pixels[offset:offset + 4] = bytes([255, 0, 0, 255])
 Note that the byte order depends on the _format_ returned, consistent with the
 endian note above.
 
+> [!WARNING]
+> If you rewrite the buffer of an image that is already on screen, tell
+> MiniLibX you are done before drawing the next frame, with
+> `m.mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)`. Skipping this can
+> leave visible artifacts while the graphics card is still reading the buffer.
+
 ### XPM and PNG images
 
 The **mlx_xpm_file_to_image**() and **mlx_png_file_to_image**() functions will
@@ -738,6 +756,14 @@ PNG images.
 You may not be able to read all types of xpm and PNG images. It does, however,
 handle transparency.
 
+> [!NOTE]
+> The built-in loaders are limited. PNG: only 8- or 16-bit images of color
+> type 2 (RGB) or 6 (RGBA), without interlacing; an indexed PNG (for example
+> exported by GIMP) fails and returns `None`. The PNG loader swaps the red and
+> blue channels for you, so the result matches the BGRA format of everything
+> else. XPM: the parser understands the standard X11 color names (like `red`
+> or `tomato`), `#RRGGBB` values, and `none` for transparent pixels.
+
 **mlx_xpm_to_image()** is not implemented in the Python wrapper as it is
 considered not useful in this context.
 
@@ -748,7 +774,24 @@ integer as an image identifier. **mlx_xpm_file_to_image()** and
 **mlx_png_file_to_image()** return a tuple ( _image_ , _width_ , _height_ ):
 _image_ is None on error, otherwise a non-null integer image identifier.
 
+_In one sentence:_ draw into the off-screen image, then show it in one
+`mlx_put_image_to_window()`, and always walk it with `size_line`, never with
+`width * 4`.
+
 ## Handle events
+
+A window that never reacts is just a screensaver. This section covers the
+event loop: the mechanism that delivers keyboard and mouse input to your
+program. Think of `mlx_loop()` as a receptionist: it waits at the desk,
+hands every event to the callback you registered for it, and calls your
+`mlx_loop_hook()` function whenever the desk is quiet.
+
+This changes how you program: your code becomes **event-driven**. You do not
+write one long `while True:` that asks "any key pressed?" in a circle;
+instead you register small functions and go to sleep. MiniLibX wakes the
+right one when something actually happens. After `mlx_loop()` starts, the
+only code that runs is your callbacks. That is why the order of calls in the
+examples matters: hooks must be registered before the loop begins.
 
 ### Synopsis
 
