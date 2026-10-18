@@ -13,6 +13,10 @@ TEMPLATE_YETI := $(TEMPLATE_DIR)/web/yeti.min.css
 FILTER_FIGURES := $(TEMPLATE_DIR)/figure-captions.lua
 FILTER_ALERTS  := $(TEMPLATE_DIR)/alerts.lua
 FILTER_YETI    := $(TEMPLATE_HTML:index.html=yeti.lua)
+FILTER_TABLES  := $(TEMPLATE_DIR)/table-widths.lua
+FILTER_CENTER  := $(TEMPLATE_DIR)/figure-center.lua
+
+MINIFY_HTML    := uv run --with minify-html python scripts/minify-web.py
 
 MD_FILES     := $(patsubst src/%.md,$(DIST_DIR)/%.md,$(SRC))
 PDF_FILES    := $(patsubst src/%.md,$(DIST_DIR)/%.pdf,$(SRC))
@@ -41,9 +45,9 @@ $(DIST_DIR)/%.md: src/manual.md $(TEMPLATE_MD) $(FILTER_FIGURES)
 	mkdir -p $(dir $@)
 	pandoc --template $(TEMPLATE_MD) -f gfm -t gfm --toc --lua-filter $(FILTER_FIGURES) $< -o $@
 
-$(DIST_DIR)/%.pdf: src/manual.md $(TEMPLATE_PDF) $(FILTER_ALERTS)
+$(DIST_DIR)/%.pdf: src/manual.md $(TEMPLATE_PDF) $(FILTER_ALERTS) $(FILTER_TABLES) $(FILTER_CENTER)
 	mkdir -p $(dir $@)
-	pandoc --template $(TEMPLATE_PDF) -f gfm --lua-filter $(FILTER_ALERTS) --lua-filter $(FILTER_FIGURES) $< -o $@
+	pandoc --template $(TEMPLATE_PDF) -f gfm --lua-filter $(FILTER_ALERTS) --lua-filter $(FILTER_FIGURES) --lua-filter $(FILTER_TABLES) --lua-filter $(FILTER_CENTER) $< -o $@
 
 $(DIST_DIR)/%.html: src/manual.md $(TEMPLATE_HTML) $(TEMPLATE_YETI) $(TEMPLATE_CSS) $(FILTER_YETI)
 	mkdir -p $(dir $@)
@@ -62,6 +66,7 @@ $(DIST_DIR)/%.html: src/manual.md $(TEMPLATE_HTML) $(TEMPLATE_YETI) $(TEMPLATE_C
 	cp $(TEMPLATE_YETI) $(DIST_DIR)/web/yeti.min.css
 	cp $(TEMPLATE_CSS) $(DIST_DIR)/web/style.css
 	rm -rf $(DIST_DIR)/web/media && cp -R media $(DIST_DIR)/web/media
+	$(MINIFY_HTML) $(DIST_DIR)/web/*html $(DIST_DIR)/web/*css
 
 clean:
 	rm -rf $(DIST_DIR) README.md
@@ -71,4 +76,5 @@ re: clean all
 .PHONY: re
 
 init:
-	@uv run --with pre-commit pre-commit install
+	uv sync
+	uv run pre-commit install

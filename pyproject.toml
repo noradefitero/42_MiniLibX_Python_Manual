@@ -1,0 +1,15 @@
+[project]
+name = "42-minilibx-python-manual"
+version = "0.1.0"
+readme = "README.md"
+authors = [
+    { name = "noradefitero", email = "nora@defitero.com" }
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "minify-html>=0.18.1",
+    "pre-commit>=4.6.2",
+]
