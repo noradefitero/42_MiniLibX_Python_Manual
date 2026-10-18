@@ -1,4 +1,10 @@
--- Pandoc Lua filters run inside pandoc: the `pandoc` global is provided by the
--- host, and filter handlers (Para, Table, Div, ...) are globals by design.
-globals = { "pandoc" }
-allow_defined_top = true
+-- Pandoc Lua filters run inside Pandoc's runtime, which injects the global
+-- `pandoc` table. The filter entry points (Div, Para, Table, ...) are global
+-- functions that Pandoc calls by name, so they are expected to be global.
+std = "max"
+globals = {
+  "pandoc",
+  "Div",
+  "Para",
+  "Table",
+}
