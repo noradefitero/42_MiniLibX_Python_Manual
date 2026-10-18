@@ -16,7 +16,7 @@ FILTER_YETI    := $(TEMPLATE_HTML:index.html=yeti.lua)
 FILTER_TABLES  := $(TEMPLATE_DIR)/table-widths.lua
 FILTER_CENTER  := $(TEMPLATE_DIR)/figure-center.lua
 
-MINIFY_HTML    := uv run --with minify-html python scripts/minify-web.py
+MINIFY_HTML    := uv run --with minify-html python scripts/minify_web.py
 
 MD_FILES     := $(patsubst src/%.md,$(DIST_DIR)/%.md,$(SRC))
 PDF_FILES    := $(patsubst src/%.md,$(DIST_DIR)/%.pdf,$(SRC))

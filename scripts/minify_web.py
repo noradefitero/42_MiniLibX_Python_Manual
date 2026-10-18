@@ -9,7 +9,7 @@ for name in sys.argv[1:]:
     path = pathlib.Path(name)
     path.write_text(
         minify_html.minify(
-            path.read_text(),
+            path.read_text(encoding="utf-8"),
             allow_removing_spaces_between_attributes=True,
             keep_comments=False,
             keep_ssi_comments=False,
@@ -18,4 +18,5 @@ for name in sys.argv[1:]:
             minify_doctype=True,
             remove_processing_instructions=True,
         ),
+        encoding="utf-8",
     )
