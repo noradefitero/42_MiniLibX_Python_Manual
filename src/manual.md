@@ -247,6 +247,8 @@ every MiniLibX program:
 > `mlx_loop()` is running, Python can't catch `Ctrl-C`, so press `Ctrl-\` to
 > kill the program. If you'd rather quit gracefully, the next example shows how.
 
+![The life of a MiniLibX program: Mlx() and mlx_init() open the connection, mlx_new_window() opens the window, and mlx_loop() then takes over and never returns on its own, so mlx_loop_exit() is the way out.](media/diagram-lifecycle.svg)
+
 #### A game loop with images and delta time
 
 The previous loop draws with `mlx_clear_window()` and `mlx_string_put()`,
@@ -669,6 +671,8 @@ the color of that pixel.
 > driver may add padding bytes at the end of every row to align rows in
 > memory. If you compute offsets with `width * 4` instead of `size_line`, your
 > pixels will land diagonally or in the wrong place.
+
+![A framebuffer row is six 4-byte pixels followed by 8 padding bytes, so size_line is 32 bytes instead of 24; the pixel at (2, 1) starts at offset 1 × 32 + 2 × 4 = 40.](media/diagram-stride.svg)
 
 A concrete example: a 300-pixel-wide image has 1200 bytes of pixel data per
 row, but `size_line` may be 1216 (1200 plus 16 bytes of padding). The pixel
