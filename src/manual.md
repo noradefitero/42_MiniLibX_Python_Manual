@@ -667,10 +667,13 @@ The offset of a pixel is computed as
 the color of that pixel.
 
 > [!WARNING]
-> `size_line` is the stride, and it is not always `width * 4`: the graphics
-> driver may add padding bytes at the end of every row to align rows in
-> memory. If you compute offsets with `width * 4` instead of `size_line`, your
-> pixels will land diagonally or in the wrong place.
+> Always index pixels through `size_line`, never through `width * 4`. It is
+> the stride (bytes per row), and it is the portable way to walk a buffer.
+> In this library the Vulkan renderer currently sets it to exactly
+> `width * 4` (no padding), but writing your offsets as `y * size_line +
+x * (bits_per_pixel // 8)` keeps the code correct even if that ever
+> changes, and matches how the value is meant to be used. Computing offsets
+> with `width * 4` is the classic bug that makes pixels land diagonally.
 
 ![A framebuffer row is six 4-byte pixels followed by 8 padding bytes, so size_line is 32 bytes instead of 24; the pixel at (2, 1) starts at offset 1 × 32 + 2 × 4 = 40.](media/diagram-stride.svg)
 
