@@ -1,0 +1,368 @@
+/* MiniLibX Python Manual — web theme.
+   A thin layer over Yeti. Everything the framework already names is named on
+   the elements themselves (index.html) or mapped to its components (yeti.lua);
+   what is left here is only what Yeti has no name for.
+   ======================================================================== */
+
+/* ---------- 1. Theme ---------- */
+:root {
+  --yeti-hue-primary: 280;
+  --yeti-link-color: var(--yeti-color-primary-text);
+  --yeti-heading-space-before: var(--yeti-space-2xl);
+  --yeti-scroll-padding: calc(
+    var(--yeti-control-size) + 2 * var(--yeti-space-sm) +
+      var(--yeti-border-width) + var(--yeti-space-sm)
+  );
+}
+
+#content:focus,
+#content:focus-visible {
+  outline: none;
+}
+
+/* ---------- 2. Header bar ---------- */
+.nav {
+  --yeti-sticky-offset: 0;
+}
+
+@media (width < 64rem) {
+  .nav > button[popovertarget] {
+    display: inline-flex;
+  }
+}
+
+@media (width >= 64rem) {
+  .nav > button[popovertarget] {
+    display: none;
+  }
+}
+
+/* ---------- 3. Page head ---------- */
+.page-head {
+  border-block-end: var(--yeti-border-width) solid var(--yeti-color-border);
+  background-image:
+    radial-gradient(
+      110% 130% at 6% -10%,
+      color-mix(in oklch, var(--yeti-color-primary) 16%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      80% 120% at 96% 6%,
+      color-mix(in oklch, var(--yeti-color-secondary) 12%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(var(--yeti-color-surface-sunken), var(--yeti-color-surface));
+}
+
+.brand-logo {
+  inline-size: 300px;
+  border-radius: var(--yeti-radius-md);
+  box-shadow:
+    var(--yeti-shadow-sm),
+    0 0 0 1px
+      light-dark(
+        transparent,
+        color-mix(in oklch, var(--yeti-white) 10%, transparent)
+      );
+}
+
+.lede,
+.byline {
+  color: var(--yeti-color-text-muted);
+}
+
+.byline {
+  font-size: var(--yeti-text-sm);
+}
+
+/* ---------- 4. Contents ---------- */
+.toc-label {
+  position: relative;
+  margin-block-end: var(--yeti-space-sm);
+  padding-inline-start: calc(
+    var(--yeti-border-width) * 2 + var(--yeti-space-xs)
+  );
+  font-size: var(--yeti-text-xs);
+  font-weight: var(--yeti-weight-strong);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--yeti-color-text);
+}
+
+#toc {
+  --yeti-sticky-offset: var(--yeti-scroll-padding);
+  line-height: var(--yeti-leading-sm);
+  --yeti-toc-padding: calc(var(--yeti-space-xs) / 2);
+  --yeti-toc-hover: transparent;
+  --yeti-card-padding: var(--yeti-space-sm);
+  --yeti-card-radius: var(--yeti-radius-lg);
+}
+
+#toc a {
+  overflow-wrap: anywhere;
+  border-inline-start-width: 0; /* no marker bar on the entry being read */
+}
+
+#toc:popover-open {
+  display: block;
+  position: fixed;
+  inset-block: 0;
+  inset-inline: 0 auto;
+  margin: 0;
+  inline-size: min(18rem, 85%);
+  block-size: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--yeti-space-lg);
+  border: 0;
+  border-radius: 0;
+  border-inline-end: var(--yeti-border-width) solid var(--yeti-color-border);
+  background-color: var(--yeti-color-surface-raised);
+  box-shadow: var(--yeti-shadow-md);
+  transition:
+    opacity var(--yeti-duration-fast) var(--yeti-ease),
+    translate var(--yeti-duration-fast) var(--yeti-ease);
+}
+
+#toc::backdrop {
+  background-color: var(--yeti-shadow-color);
+}
+
+@starting-style {
+  #toc:popover-open {
+    opacity: 0;
+    translate: -1rem 0;
+  }
+}
+
+@media screen and (width >= 64rem) {
+  .page-body {
+    --toc-shift: min(
+      calc((100vw - (64rem + 2 * var(--yeti-space-md))) / 2),
+      var(--yeti-space-md)
+    );
+  }
+  #toc {
+    display: block;
+    max-block-size: calc(
+      100dvh - var(--yeti-scroll-padding) - var(--yeti-space-lg)
+    );
+    overflow-y: auto;
+    margin-inline-start: calc(-1 * var(--toc-shift));
+  }
+  #content {
+    margin-inline-start: var(--toc-shift);
+  }
+}
+
+.page-body {
+  align-self: center;
+}
+
+/* ---------- 5. Article ---------- */
+.manual {
+  overflow-wrap: break-word;
+}
+
+.manual pre {
+  overflow-wrap: normal;
+}
+
+.manual > h2 {
+  position: relative;
+  padding-inline-start: var(--yeti-space-md);
+}
+
+.manual > h2::before,
+.toc-label::before {
+  content: "";
+  position: absolute;
+  inset-block: 0.15em;
+  inset-inline-start: 0;
+  inline-size: calc(var(--yeti-border-width) * 2);
+  border-radius: var(--yeti-radius-full);
+  background-image: linear-gradient(
+    var(--yeti-color-primary),
+    var(--yeti-color-secondary)
+  );
+}
+
+.manual :not(pre) > code {
+  border: var(--yeti-border-width) solid var(--yeti-color-border);
+  background-color: var(--yeti-color-surface-sunken);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 6. Code blocks ---------- */
+.manual pre.sourceCode {
+  border: var(--yeti-border-width) solid var(--yeti-color-border);
+  background-color: var(--yeti-color-surface-sunken);
+  font-size: var(--yeti-text-sm);
+  overflow-y: hidden;
+}
+
+.manual pre.sourceCode::before {
+  content: "code";
+  display: block;
+  white-space: nowrap;
+  margin: calc(-1 * var(--yeti-space-md)) calc(-1 * var(--yeti-space-md))
+    var(--yeti-space-sm);
+  padding: var(--yeti-space-xs) var(--yeti-space-md);
+  border-block-end: var(--yeti-border-width) solid var(--yeti-color-border);
+  background-color: color-mix(
+    in oklch,
+    var(--yeti-color-primary) 8%,
+    var(--yeti-color-surface-sunken)
+  );
+  color: var(--yeti-color-text-muted);
+  font-family: var(--yeti-font-mono);
+  font-size: var(--yeti-text-xs);
+  letter-spacing: 0.02em;
+}
+
+.manual pre.sourceCode.bash::before {
+  content: "bash";
+}
+
+.manual pre.sourceCode.c::before {
+  content: "c";
+}
+
+.manual pre.sourceCode.python::before {
+  content: "python";
+}
+
+/* ---------- 7. Figures ---------- */
+.manual > p:has(> img) {
+  margin-block-start: var(--yeti-space-xl);
+  padding: var(--yeti-space-lg);
+  border: var(--yeti-border-width) solid var(--yeti-color-border);
+  border-radius: var(--yeti-radius-md);
+  background-color: light-dark(
+    var(--yeti-white),
+    var(--yeti-color-surface-raised)
+  );
+  box-shadow: var(--yeti-shadow-sm);
+}
+
+.manual > p:has(> img) > img {
+  margin-inline: auto;
+  border-radius: var(--yeti-radius-sm);
+  box-shadow: 0 0 0 var(--yeti-border-width)
+    light-dark(transparent, var(--yeti-color-border));
+}
+
+.manual > p:has(> img) + p:has(> em) {
+  max-inline-size: 60ch;
+  margin-block-start: var(--yeti-space-xs);
+  margin-inline: auto;
+  font-size: var(--yeti-text-sm);
+  color: var(--yeti-color-text-muted);
+  text-align: center;
+}
+
+/* ---------- 8. Tables ---------- */
+.manual :is(th, td) {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 9. Footer ---------- */
+.site-footer {
+  margin-block-start: var(--yeti-space-2xl);
+  padding-block-end: var(--yeti-space-2xl);
+}
+
+.site-footer .card::before {
+  content: "";
+  display: block;
+  inline-size: 3.5rem;
+  block-size: 3px;
+  margin-block-end: var(--yeti-space-md);
+  border-radius: 999px;
+  background-image: linear-gradient(
+    90deg,
+    var(--yeti-color-primary),
+    var(--yeti-color-secondary)
+  );
+}
+
+.footer-title,
+.footer-ack-title {
+  font-weight: var(--yeti-weight-strong);
+}
+
+.footer-note,
+.footer-links,
+.footer-ack {
+  font-size: var(--yeti-text-sm);
+  color: var(--yeti-color-text-muted);
+}
+
+.footer-legal {
+  font-size: var(--yeti-text-xs);
+  color: var(--yeti-color-text-muted);
+}
+
+/* ---------- 10. Floating star ---------- */
+.star-fab {
+  position: fixed;
+  inset-block-end: var(--yeti-space-lg);
+  inset-inline-end: var(--yeti-space-lg);
+  z-index: 1; /* above the page, below the sticky nav and contents drawer */
+  box-shadow: var(--yeti-shadow-md);
+}
+
+/* ---------- 11. Print ---------- */
+@media print {
+  :root {
+    color-scheme: light;
+  }
+  @page {
+    margin: 1.5cm;
+  }
+  body {
+    background: none;
+  }
+  .center {
+    inline-size: auto;
+    max-inline-size: none;
+    padding-inline: 0;
+  }
+  .sidebar {
+    display: block;
+  }
+  .page-head {
+    padding-block: 0 var(--yeti-space-lg);
+    border-block-end: 0;
+    background: none;
+  }
+  .page-body {
+    padding-block: 0;
+  }
+  .site-footer .card {
+    padding-inline: 0;
+    border: 0;
+    background: none;
+  }
+  .site-footer .card::before {
+    display: none;
+  }
+  .manual > p:has(> img) {
+    box-shadow: none;
+  }
+  .manual pre.sourceCode {
+    white-space: pre-wrap;
+    overflow: visible;
+  }
+  .manual a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+  .manual :is(h2, h3, h4) {
+    break-after: avoid;
+  }
+  .manual :is(pre, table, p:has(> img)) {
+    break-inside: avoid;
+  }
+}

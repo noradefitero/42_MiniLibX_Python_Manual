@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content="pandoc" />
+    $for(author)$
+    <meta name="author" content="$author$" />
+    $endfor$
+    <title>$if(title)$$title$$else$MiniLibX Python Manual$endif$</title>
+    $for(css)$
+    <link rel="stylesheet" href="$css$" />
+    $endfor$$for(header-includes)$ $header-includes$$endfor$
+  </head>
+  <body class="shell" data-gap="none">
+    <a href="#content">Skip to content</a>
+
+    <nav class="nav print" aria-label="Main" data-sticky data-print="none">
+      <a data-brand href="#"
+        >$if(title)$$title$$else$MiniLibX Python Manual$endif$</a
+      >
+      <button type="button" popovertarget="toc" aria-label="Table of contents">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+      <div data-actions data-show="lg">
+        <a
+          class="button"
+          data-emphasis="low"
+          data-size="sm"
+          href="https://github.com/noradefitero/42_MiniLibX_Python_Manual"
+          aria-label="GitHub repository"
+        >
+          <img src="media/github.svg" alt="" width="16" height="16" />
+        </a>
+        <a
+          class="button"
+          data-emphasis="low"
+          data-size="sm"
+          href="https://github.com/noradefitero/42_MiniLibX_Python_Manual/releases"
+          >Download PDF</a
+        >
+      </div>
+    </nav>
+
+    <header class="box page-head" data-gap-block="2xl" data-surface="sunken">
+      <div class="center">
+        <div
+          class="stack enter"
+          data-align="center"
+          data-gap="lg"
+          data-enter="rise"
+          data-stagger
+        >
+          $if(titlepage-logo)$
+          <img
+            class="brand-logo"
+            src="$titlepage-logo$"
+            alt=""
+            width="1050"
+            height="450"
+          />
+          $endif$
+          <h1>$if(title)$$title$$else$MiniLibX Python Manual$endif$</h1>
+          $if(abstract)$
+          <div class="lede">$abstract$</div>
+          $endif$ $if(author)$
+          <p class="byline">$for(author)$$author$$sep$ · $endfor$</p>
+          $endif$
+        </div>
+      </div>
+    </header>
+
+    <div class="box center page-body" data-gap-block="2xl">
+      <div class="sidebar" data-gap="xl" data-width="sm">
+        <nav
+          id="toc"
+          class="toc card print"
+          popover
+          role="doc-toc"
+          aria-labelledby="toc-label"
+          data-sticky
+          data-size="sm"
+          data-print="none"
+        >
+          <p class="toc-label" id="toc-label">Contents</p>
+          $if(toc)$ $toc$ $endif$
+        </nav>
+
+        <main id="content" tabindex="-1">
+          <article class="manual">$body$</article>
+        </main>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="center">
+        <div class="card">
+          <p class="footer-title">
+            $if(title)$$title$$else$MiniLibX Python Manual$endif$
+          </p>
+          <p class="footer-note">
+            Questions or suggestions? Write to
+            <a href="mailto:nora@defitero.com">nora@defitero.com</a>.
+          </p>
+          <ul class="cluster footer-links print" data-print="none" role="list">
+            <li>
+              <a
+                href="https://github.com/noradefitero/42_MiniLibX_Python_Manual"
+                >GitHub repository</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/noradefitero/42_MiniLibX_Python_Manual/releases"
+                >PDF releases</a
+              >
+            </li>
+          </ul>
+          $if(acknowledgements)$
+          <div class="stack footer-ack" data-gap="xs">
+            <p class="footer-ack-title">Acknowledgements</p>
+            $acknowledgements$
+          </div>
+          $endif$
+          <p class="footer-legal">
+            Copyright (c) 2026 Nora de Fitero Teijeira. MIT License.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <a
+      class="button star-fab print"
+      data-print="none"
+      href="https://github.com/noradefitero/42_MiniLibX_Python_Manual"
+      aria-label="Star this project on GitHub"
+    >
+      <svg
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"
+        />
+      </svg>
+      Star on GitHub
+    </a>
+
+    <script>
+      // Progressive enhancement only: no dependencies and no requests, so the
+      // page works opened straight from disk, and works with JavaScript off.
+      (function () {
+        var toc = document.getElementById("toc");
+        if (!toc) return;
+
+        // A picked section closes the contents drawer: native popovers do not
+        // close on in-page navigation, and on a phone the list would otherwise
+        // stay over the page just read.
+        if ("popover" in toc) {
+          toc.addEventListener("click", function (event) {
+            if (event.target.closest("a[href^='#']")) toc.hidePopover();
+          });
+        }
+
+        // Mark the section being read, mirroring Yeti's own toc.js: the link
+        // whose heading is topmost in view carries aria-current, and the last
+        // mark stays when no heading is in view. This moves the attribute only;
+        // Yeti's own .toc rule owns how the mark looks. It is inlined instead of
+        // loaded because an external script module is blocked under file://.
+        // Without it, the list is still a working list of links.
+        var links = Array.prototype.slice.call(
+          toc.querySelectorAll("a[href^='#']"),
+        );
+        var byHeading = new Map();
+        links.forEach(function (link) {
+          var heading = document.getElementById(
+            decodeURIComponent(link.getAttribute("href").slice(1)),
+          );
+          if (heading) byHeading.set(heading, link);
+        });
+        if (!byHeading.size || !("IntersectionObserver" in window)) return;
+
+        var headings = Array.from(byHeading.keys()).sort(function (a, b) {
+          return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING
+            ? -1
+            : 1;
+        });
+        var visible = new Set();
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) visible.add(entry.target);
+            else visible.delete(entry.target);
+          });
+          var heading = headings.find(function (h) {
+            return visible.has(h);
+          });
+          if (!heading) return;
+          var link = byHeading.get(heading);
+          if (link.getAttribute("aria-current") === "true") return;
+          links.forEach(function (other) {
+            other.removeAttribute("aria-current");
+          });
+          link.setAttribute("aria-current", "true");
+        });
+        headings.forEach(function (heading) {
+          observer.observe(heading);
+        });
+      })();
+    </script>
+  </body>
+</html>

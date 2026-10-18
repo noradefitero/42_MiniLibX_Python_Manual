@@ -1,0 +1,7 @@
+# Mirror of the root .codespellrc: super-linter only reads codespell config
+# from .github/linters/, while pre-commit/codespell locally discover the root
+# copy. Keep both in sync.
+[codespell]
+# `figurestyle` is a LaTeX macro name in the third-party Eisvogel template.
+ignore-words-list = figurestyle
+skip = README.md,*.svg,*.af

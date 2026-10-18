@@ -347,6 +347,9 @@ $highlighting-macros$
 $endif$
 $if(tables)$
 \usepackage{longtable,booktabs,array}
+% pandoc wraps caption-less tables in {\def\LTcaptype{none} ...}; modern
+% longtable steps a counter named "none", so it must be declared first.
+\newcounter{none}
 $if(multirow)$
 \usepackage{multirow}
 $endif$
@@ -366,6 +369,15 @@ $else$
 % Allow footnotes in longtable head/foot
 \IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
 \makesavenoteenv{longtable}
+% Long code identifiers (`mlx_get_data_addr()`, `SYNC_IMAGE_WRITABLE`, ...) have
+% no break opportunity of their own, so a squeezed table column would push them
+% past the page margin.  Inside longtable only - a global redefinition of \_
+% would leak into \includegraphics paths and \href URLs - give them a break
+% after every underscore, which is where such an identifier is read in parts.
+\AtBeginEnvironment{longtable}{%
+  \let\pandocunderscore\_
+  \def\_{\pandocunderscore\allowbreak}%
+}
 $endif$
 $endif$
 % add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
@@ -377,15 +389,29 @@ $if(graphics)$
 \usepackage{graphicx}
 \makeatletter
 \newsavebox\pandoc@box
+% An image is alone in its paragraph and has to leave room for the
+% parfillskip, which the document class reserves at the end of the last
+% line of every paragraph (1em here).  Scaling the image to \linewidth
+% instead would push the line past the right margin by exactly that much.
+\newcommand*\pandoc@linewidth{\dimexpr\linewidth-\parfillskip\relax}
 \newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \noindent
   \sbox\pandoc@box{#1}%
   \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
-  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \Gscale@div\@tempb{\pandoc@linewidth}{\wd\pandoc@box}%
   \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
   \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
   \else\usebox{\pandoc@box}%
   \fi%
 }
+% A standalone image is its own paragraph, and a left-aligned paragraph puts
+% it flush against the left margin: fine for a screenshot that fills the
+% block, visibly off for a diagram narrower than the text.  Typeset such
+% images as display figures instead - centred, and with an empty parfillskip
+% so the image may use the whole \linewidth (the 1em parfillskip the document
+% reserves at the end of every last line would otherwise push it into the
+% right margin).  Used by figure-center.lua.
+\newenvironment{pandocfigure}{\par\centering\setlength{\parfillskip}{0pt}}{\par}
 % Set default figure placement to htbp
 % Make use of float-package and set default placement for figures to H.
 % The option H means 'PUT IT HERE' (as  opposed to the standard h option which means 'You may put it here if you like').
@@ -655,10 +681,27 @@ $endif$
 %
 \definecolor{blockquote-border}{RGB}{221,221,221}
 \definecolor{blockquote-text}{RGB}{119,119,119}
-\usepackage{mdframed}
-\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=\parskip]{customblockquote}
+\usepackage[framemethod=tikz]{mdframed}
+\newmdenv[rightline=false,bottomline=false,topline=false,linewidth=3pt,linecolor=blockquote-border,skipabove=1.0\parskip]{customblockquote}
 \renewenvironment{quote}{\begin{customblockquote}\list{}{\rightmargin=0em\leftmargin=0em}%
 \item\relax\color{blockquote-text}\ignorespaces}{\unskip\unskip\endlist\end{customblockquote}}
+
+%
+% GFM-style alert callouts ([!NOTE], [!TIP], [!WARNING], [!IMPORTANT])
+%
+\definecolor{mlnote-border}{HTML}{4077C0}
+\definecolor{mlnote-bg}{HTML}{E8F2FC}
+\definecolor{mltip-border}{HTML}{10B981}
+\definecolor{mltip-bg}{HTML}{E6F9F0}
+\definecolor{mlwarning-border}{HTML}{F59E0B}
+\definecolor{mlwarning-bg}{HTML}{FFF8E6}
+\definecolor{mlimportant-border}{HTML}{DC2626}
+\definecolor{mlimportant-bg}{HTML}{FEE2E2}
+
+\newmdenv[linecolor=mlnote-border,backgroundcolor=mlnote-bg,linewidth=2pt,roundcorner=8pt,frametitle={Note},frametitlefont=\bfseries\color{mlnote-border},frametitlealignment=\raggedright,frametitleaboveskip=10.5pt,frametitlebelowskip=-3pt,innertopmargin=12pt,innerbottommargin=12pt,innerleftmargin=16pt,innerrightmargin=16pt,skipabove=12pt,skipbelow=2pt]{mlnote}
+\newmdenv[linecolor=mltip-border,backgroundcolor=mltip-bg,linewidth=2pt,roundcorner=8pt,frametitle={Tip},frametitlefont=\bfseries\color{mltip-border},frametitlealignment=\raggedright,frametitleaboveskip=10.5pt,frametitlebelowskip=-3pt,innertopmargin=12pt,innerbottommargin=12pt,innerleftmargin=16pt,innerrightmargin=16pt,skipabove=12pt,skipbelow=2pt]{mltip}
+\newmdenv[linecolor=mlwarning-border,backgroundcolor=mlwarning-bg,linewidth=2pt,roundcorner=8pt,frametitle={Warning},frametitlefont=\bfseries\color{mlwarning-border},frametitlealignment=\raggedright,frametitleaboveskip=10.5pt,frametitlebelowskip=-3pt,innertopmargin=12pt,innerbottommargin=12pt,innerleftmargin=16pt,innerrightmargin=16pt,skipabove=12pt,skipbelow=2pt]{mlwarning}
+\newmdenv[linecolor=mlimportant-border,backgroundcolor=mlimportant-bg,linewidth=2pt,roundcorner=8pt,frametitle={Important},frametitlefont=\bfseries\color{mlimportant-border},frametitlealignment=\raggedright,frametitleaboveskip=10.5pt,frametitlebelowskip=-3pt,innertopmargin=12pt,innerbottommargin=12pt,innerleftmargin=16pt,innerrightmargin=16pt,skipabove=12pt,skipbelow=2pt]{mlimportant}
 
 %
 % Source Sans Pro as the de­fault font fam­ily
