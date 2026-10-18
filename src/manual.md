@@ -1055,12 +1055,12 @@ MiniLibX sits on top of three different backends, and a few behaviors change
 between them. If your program works on one machine but not on another, check
 this table before blaming your code:
 
-| Behavior                     | X11 (Linux)                 | Wayland (Linux)             | macOS (AppKit)        |
-| ---------------------------- | --------------------------- | --------------------------- | --------------------- |
-| Expose events                | Once, usually               | Never                       | Never                 |
-| `mlx_do_key_autorepeatoff()` | Works                       | May be a no-op              | Filters the OS repeat |
-| `mlx_mouse_move()`           | Works                       | May return `-1`             | Works                 |
-| Content before `mlx_loop()`  | Shown after `mlx_do_sync()` | Shown after `mlx_do_sync()` | Nothing is shown      |
+| Behavior                     | X11 (Linux)                 | Wayland (Linux)             | macOS (AppKit)         |
+| ---------------------------- | --------------------------- | --------------------------- | ---------------------- |
+| Expose events                | Once, usually               | Once, after first show      | Once, after first show |
+| `mlx_do_key_autorepeatoff()` | Works                       | May be a no-op              | Filters the OS repeat  |
+| `mlx_mouse_move()`           | Works                       | May return `-1`             | Works                  |
+| Content before `mlx_loop()`  | Shown after `mlx_do_sync()` | Shown after `mlx_do_sync()` | Nothing is shown       |
 
 ## Try it yourself
 
@@ -1930,23 +1930,23 @@ are not listed here.
 
 ## Appendix C: Glossary
 
-| Term                        | Meaning                                                                                 |
-| --------------------------- | --------------------------------------------------------------------------------------- |
-| Alpha channel               | The fourth byte of a color: how opaque the pixel is (0 transparent, 255 solid)          |
-| Backend                     | The piece of MiniLibX that talks to one specific graphics system (XCB, Wayland, AppKit) |
-| Blit                        | Copying a whole image onto the window in one operation (`mlx_put_image_to_window`)      |
-| bpp (bits per pixel)        | How many bits one pixel occupies; 32 bpp = 4 bytes per pixel                            |
-| Callback                    | A function you register; MiniLibX calls it when an event happens                        |
-| Compositor                  | The program that puts all windows together on screen (used by Wayland)                  |
-| Delta time                  | The time between two frames; you measure it to make motion speed constant               |
-| Double buffering            | Drawing in a private buffer and showing it only when complete, to avoid flicker         |
-| Event loop                  | The endless cycle that waits for events and dispatches them to your callbacks           |
-| Expose                      | An event meaning "a part of your window needs to be redrawn" (X11 only, once usually)   |
-| Framebuffer                 | A region of memory holding one pixel value per screen position; here, an MLX image      |
-| Hook                        | Another name for registering a callback                                                 |
-| Keycode                     | The physical identity of a key on the keyboard (hardware dependent)                     |
-| Keysym                      | The logical meaning of a key, X11 style (`a` = 97, Escape = 65307)                      |
-| mlx_ptr / win_ptr / img_ptr | Identifiers: connection / window / image; opaque integers you pass back to MiniLibX     |
-| Stride                      | Bytes per row in a buffer, padding included; `size_line` in the wrapper                 |
-| Wheel                       | A `.whl` file: the package format used to install the mlx Python library                |
-| XCB / Wayland / AppKit      | The three backends MiniLibX supports: Linux X11, Linux Wayland, macOS                   |
+| Term                        | Meaning                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Alpha channel               | The fourth byte of a color: how opaque the pixel is (0 transparent, 255 solid)                                   |
+| Backend                     | The piece of MiniLibX that talks to one specific graphics system (XCB, Wayland, AppKit)                          |
+| Blit                        | Copying a whole image onto the window in one operation (`mlx_put_image_to_window`)                               |
+| bpp (bits per pixel)        | How many bits one pixel occupies; 32 bpp = 4 bytes per pixel                                                     |
+| Callback                    | A function you register; MiniLibX calls it when an event happens                                                 |
+| Compositor                  | The program that puts all windows together on screen (used by Wayland)                                           |
+| Delta time                  | The time between two frames; you measure it to make motion speed constant                                        |
+| Double buffering            | Drawing in a private buffer and showing it only when complete, to avoid flicker                                  |
+| Event loop                  | The endless cycle that waits for events and dispatches them to your callbacks                                    |
+| Expose                      | An event meaning "a part of your window needs to be redrawn" (all backends, once after the window first appears) |
+| Framebuffer                 | A region of memory holding one pixel value per screen position; here, an MLX image                               |
+| Hook                        | Another name for registering a callback                                                                          |
+| Keycode                     | The physical identity of a key on the keyboard (hardware dependent)                                              |
+| Keysym                      | The logical meaning of a key, X11 style (`a` = 97, Escape = 65307)                                               |
+| mlx_ptr / win_ptr / img_ptr | Identifiers: connection / window / image; opaque integers you pass back to MiniLibX                              |
+| Stride                      | Bytes per row in a buffer, padding included; `size_line` in the wrapper                                          |
+| Wheel                       | A `.whl` file: the package format used to install the mlx Python library                                         |
+| XCB / Wayland / AppKit      | The three backends MiniLibX supports: Linux X11, Linux Wayland, macOS                                            |
