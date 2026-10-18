@@ -19,7 +19,7 @@
       <a data-brand href="#"
         >$if(title)$$title$$else$MiniLibX Python Manual$endif$</a
       >
-      <button type="button" popovertarget="TOC" aria-label="Table of contents">
+      <button type="button" popovertarget="toc" aria-label="Table of contents">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -83,7 +83,7 @@
     <div class="box center page-body" data-gap-block="2xl">
       <div class="sidebar" data-gap="xl" data-width="sm">
         <nav
-          id="TOC"
+          id="toc"
           class="toc card print"
           popover
           role="doc-toc"
@@ -162,7 +162,7 @@
       // Progressive enhancement only: no dependencies and no requests, so the
       // page works opened straight from disk, and works with JavaScript off.
       (function () {
-        var toc = document.getElementById("TOC");
+        var toc = document.getElementById("toc");
         if (!toc) return;
 
         // A picked section closes the contents drawer: native popovers do not
