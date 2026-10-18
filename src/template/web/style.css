@@ -303,7 +303,16 @@
   color: var(--yeti-color-text-muted);
 }
 
-/* ---------- 10. Print ---------- */
+/* ---------- 10. Floating star ---------- */
+.star-fab {
+  position: fixed;
+  inset-block-end: var(--yeti-space-lg);
+  inset-inline-end: var(--yeti-space-lg);
+  z-index: 1; /* above the page, below the sticky nav and contents drawer */
+  box-shadow: var(--yeti-shadow-md);
+}
+
+/* ---------- 11. Print ---------- */
 @media print {
   :root {
     color-scheme: light;
