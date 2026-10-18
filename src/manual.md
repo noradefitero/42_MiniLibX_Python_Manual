@@ -1279,22 +1279,22 @@ m.mlx_release(mlx_ptr)
 
 ## Troubleshooting
 
-| Symptom                                  | Likely cause                               | Fix                                                      |
-| ---------------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
-| `Ctrl-C` does not stop the program       | Signals blocked during `mlx_loop()`        | Press `Ctrl-\` or call `mlx_loop_exit()`                 |
-| `mlx_init()` returns `None`              | No display or missing backend              | Check your environment and dependencies                  |
-| `import mlx` fails to load `libmlx`      | Wrong wheel or missing library             | Reinstall a wheel built for your platform                |
-| `pip install` of an intra `.whl` fails   | Non-standard filename                      | Rename it to `mlx-2.4-py3-none-any.whl`                  |
-| `mlx_png_file_to_image()` returns `None` | Unsupported PNG variant                    | Use 8/16-bit RGB or RGBA, non-indexed                    |
-| Window or image identifier is `None`     | Creation failed silently                   | Check every creation result                              |
-| Window opens but stays black             | Nothing is drawn from the loop             | Draw from `mlx_loop_hook()` every frame                  |
-| Callbacks never fire                     | Hooks registered too late                  | Register hooks before calling `mlx_loop()`               |
-| Key only reacts when released            | `mlx_key_hook()` fires on release          | Use `mlx_hook(win, 2, ...)` for presses                  |
-| Pixels land diagonally                   | Offsets computed with `width * 4`          | Use `size_line` (the stride)                             |
-| Artifacts when updating an image         | Buffer rewritten without sync              | Call `mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)` |
-| Nothing shows on macOS                   | Nothing drawn once `mlx_loop()` is running | Draw from `mlx_loop_hook()`                              |
-| `mlx_mouse_move()` returns `-1`          | Wayland backend limitation                 | Accept the failure or check the backend                  |
-| `ValueError` when unpacking a result     | Tuples start with a `status` element       | Unpack it: `status, w, h = ...`                          |
+| Symptom                                  | Likely cause                                                 | Fix                                                                        |
+| ---------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| `Ctrl-C` does not stop the program       | Some backends only notice signals while idle in `mlx_loop()` | Install a `SIGINT` handler that calls `mlx_loop_exit()`, or press `Ctrl-\` |
+| `mlx_init()` returns `None`              | No display or missing backend                                | Check your environment and dependencies                                    |
+| `import mlx` fails to load `libmlx`      | Wrong wheel or missing library                               | Reinstall a wheel built for your platform                                  |
+| `pip install` of an intra `.whl` fails   | Non-standard filename                                        | Rename it to `mlx-2.4-py3-none-any.whl`                                    |
+| `mlx_png_file_to_image()` returns `None` | Unsupported PNG variant                                      | Use 8/16-bit RGB or RGBA, non-indexed                                      |
+| Window or image identifier is `None`     | Creation failed silently                                     | Check every creation result                                                |
+| Window opens but stays black             | Nothing is drawn from the loop                               | Draw from `mlx_loop_hook()` every frame                                    |
+| Callbacks never fire                     | Hooks registered too late                                    | Register hooks before calling `mlx_loop()`                                 |
+| Key only reacts when released            | `mlx_key_hook()` fires on release                            | Use `mlx_hook(win, 2, ...)` for presses                                    |
+| Pixels land diagonally                   | Offsets computed with `width * 4`                            | Use `size_line` (the stride)                                               |
+| Artifacts when updating an image         | Buffer rewritten without sync                                | Call `mlx_sync(mlx_ptr, m.SYNC_IMAGE_WRITABLE, img_ptr)`                   |
+| Nothing shows on macOS                   | Nothing drawn once `mlx_loop()` is running                   | Draw from `mlx_loop_hook()`                                                |
+| `mlx_mouse_move()` returns `-1`          | Wayland backend limitation                                   | Accept the failure or check the backend                                    |
+| `ValueError` when unpacking a result     | Tuples start with a `status` element                         | Unpack it: `status, w, h = ...`                                            |
 
 ## Function index
 
