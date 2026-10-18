@@ -874,8 +874,13 @@ game loop you will write in [Try it yourself](#try-it-yourself).
 The _param_ argument is the same Python object you passed when registering the
 hook: the wrapper keeps it and gives it back to you on every call. The return
 value of the callback is ignored, and the registration functions themselves
-return `0`. To remove a hook, call the same function again with `None` as the
-callback.
+return `0`. To remove a **convenience** hook (`mlx_key_hook`, `mlx_mouse_hook`,
+`mlx_loop_hook`, ...), call the same function again with `None` as the
+callback. This does _not_ work for the generic `mlx_hook`: passing `None`
+there is forwarded internally with the wrong event and mask, so it fails to
+clear the slot you registered. To stop responding to a raw event, keep the
+hook registered but make its callback do nothing; the event will still be
+delivered but ignored.
 
 For games you usually want to know which keys are held _right now_. The
 pattern is: turn auto-repeat off, track presses and releases in a `set`, and
