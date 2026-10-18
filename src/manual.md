@@ -820,8 +820,9 @@ store the parameters it might need.
 > event (number 2); see [Going further with events](#going-further-with-events).
 
 The syntax for the **mlx_loop_hook**() function is similar to the previous
-ones, but the given function will be called when no event occurs, and is not
-bound to a specific window.
+ones, but the given function is called on **every iteration** of `mlx_loop()`
+(once per frame, right before events are checked) rather than when a specific
+event fires, and it is not bound to a specific window.
 
 When it catches an event, the MiniLibX calls the corresponding function with
 fixed parameters. Under the hood, everything is an X11 event with a number,
