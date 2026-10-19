@@ -35,6 +35,15 @@ jobs:
           pandoc --version
       - name: Generate README.md
         run: make readme
+      - name: Configure push credentials
+        # add-and-commit pushes with plain git, and its github_token input is
+        # API-only, so restore the auth header that checkout omits when
+        # persist-credentials is false.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --local http.https://github.com/.extraheader \
+            "AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 | tr -d '\n')"
       - name: Commit README.md
         uses: EndBug/add-and-commit@v11
         with:
