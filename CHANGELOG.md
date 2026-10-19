@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/noradefitero/42_MiniLibX_Python_Manual/compare/v1.0.0...v1.0.1) (2026-10-19)
+
+
+### Documentation
+
+* **README:** update generated documentation ([ece8eff](https://github.com/noradefitero/42_MiniLibX_Python_Manual/commit/ece8effe9856e886de2f07a0aec35c2365af4be8))
+
 ## 1.0.0 (2026-10-19)
 
 
