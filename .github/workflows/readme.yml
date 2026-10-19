@@ -24,9 +24,15 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
       - name: Install pandoc
+        env:
+          # Pinned: Ubuntu's apt pandoc predates the gfm `alerts` extension,
+          # so > [!NOTE] callouts would ship as literal text.
+          PANDOC_VERSION: "3.12.1"
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
+          curl -fsSL -o /tmp/pandoc.tar.gz \
+            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz"
+          sudo tar -xzf /tmp/pandoc.tar.gz -C /usr/local --strip-components=1
+          pandoc --version
       - name: Generate README.md
         run: make readme
       - name: Commit README.md
