@@ -25,15 +25,32 @@
   --yeti-sticky-offset: 0;
 }
 
-@media (width < 64rem) {
-  .nav > button[popovertarget] {
-    display: inline-flex;
-  }
+/* Keep the contents hamburger visible below 64rem. Yeti shows it from its nav
+   base rules, but drops it again once the nav's own container passes 32rem —
+   which would strand the drawer on a landscape phone or small tablet. */
+.nav > button[popovertarget] {
+  display: inline-flex;
 }
 
 @media (width >= 64rem) {
   .nav > button[popovertarget] {
     display: none;
+  }
+}
+
+/* Nav actions (GitHub, Download PDF) belong to 48rem and up; on a phone only
+   the brand and the hamburger fit. This is what Yeti's [data-show="lg"]
+   utility would do, but the build's minifier mangles the less-than sign in
+   that utility's container query — and turns a less-than sign in a media
+   query here into an escaped one that drops the whole block — so every
+   condition in this file has to be written the "at least" way round. */
+.nav > [data-actions] {
+  display: none;
+}
+
+@media (width >= 48rem) {
+  .nav > [data-actions] {
+    display: flex;
   }
 }
 
@@ -103,6 +120,17 @@
   border-inline-start-width: 0; /* no marker bar on the entry being read */
 }
 
+/* Closed state. The browser hides a closed popover itself, but only with a
+   user-agent rule — and #toc is a .card, whose author rule (display: flex)
+   outranks it, which used to leave a full-screen contents card in the page on
+   a phone. So the closed state is declared here; at 64rem and up the rule
+   below turns the same element into the sticky sidebar instead. */
+#toc:not(:popover-open) {
+  display: none;
+}
+
+/* Open state on a phone: a drawer down the left edge, over a dimmed backdrop.
+   Light dismiss, Escape and the inlined link handler close it. */
 #toc:popover-open {
   display: block;
   position: fixed;
@@ -142,7 +170,7 @@
       var(--yeti-space-md)
     );
   }
-  #toc {
+  #toc:not(:popover-open) {
     display: block;
     max-block-size: calc(
       100dvh - var(--yeti-scroll-padding) - var(--yeti-space-lg)
@@ -235,7 +263,7 @@
 /* ---------- 7. Figures ---------- */
 .manual > p:has(> img) {
   margin-block-start: var(--yeti-space-xl);
-  padding: var(--yeti-space-lg);
+  padding: var(--yeti-space-sm);
   border: var(--yeti-border-width) solid var(--yeti-color-border);
   border-radius: var(--yeti-radius-md);
   background-color: light-dark(
@@ -346,9 +374,6 @@
   }
   .site-footer .card::before {
     display: none;
-  }
-  .manual > p:has(> img) {
-    box-shadow: none;
   }
   .manual pre.sourceCode {
     white-space: pre-wrap;

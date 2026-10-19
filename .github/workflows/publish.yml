@@ -7,8 +7,14 @@ on:
   workflow_dispatch:
 
   # Called by release-please: tags/releases made with GITHUB_TOKEN
-  # do not trigger push/release events (recursive trigger guard)
+  # do not trigger push/release events (recursive trigger guard),
+  # so the tag name must be passed in as an input.
   workflow_call:
+    inputs:
+      tag:
+        description: Tag created by release-please
+        type: string
+        required: false
 
 permissions:
   contents: write
@@ -21,9 +27,19 @@ jobs:
         with:
           persist-credentials: false
       - name: Install pandoc
+        env:
+          # Pinned: Ubuntu's apt pandoc predates the gfm `alerts` extension,
+          # so > [!NOTE] callouts would ship as literal text.
+          PANDOC_VERSION: "3.12.1"
+        run: |
+          curl -fsSL -o /tmp/pandoc.tar.gz \
+            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-linux-amd64.tar.gz"
+          sudo tar -xzf /tmp/pandoc.tar.gz -C /usr/local --strip-components=1
+          pandoc --version
+      - name: Install LaTeX
         run: |
           sudo apt-get update
-          sudo apt-get install -y pandoc texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended librsvg2-bin
+          sudo apt-get install -y texlive texlive-latex-extra texlive-fonts-extra texlive-fonts-recommended librsvg2-bin
       - name: Make docs
         run: make pdf markdown
       - name: Release MD and PDF
@@ -31,3 +47,6 @@ jobs:
         with:
           working_directory: dist
           body_path: CHANGELOG.md
+          # workflow_call has no tag ref (runs on main), so use the
+          # release-please input; direct tag pushes use github.ref_name.
+          tag_name: ${{ inputs.tag || startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
