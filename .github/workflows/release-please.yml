@@ -4,14 +4,15 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
     steps:
@@ -28,14 +29,14 @@ jobs:
   publish:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    uses: ./.github/workflows/publish.yml
+    uses: $/.github/workflows/publish.yml
     permissions:
       contents: write
 
   deploy-pages:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    uses: ./.github/workflows/page.yml
+    uses: $/.github/workflows/page.yml
     permissions:
       contents: read
       pages: write
@@ -44,6 +45,6 @@ jobs:
   readme:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    uses: ./.github/workflows/readme.yml
+    uses: $/.github/workflows/readme.yml
     permissions:
       contents: write
