@@ -38,7 +38,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y pandoc
       - uses: actions/setup-python@v5
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        # Pinned to hash (blanket policy); bump comment when updating
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          # Publish workflow: never read from the Actions cache
+          enable-cache: false
       - name: Make docs
         run: make web
       - uses: actions/configure-pages@v5
