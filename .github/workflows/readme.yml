@@ -3,6 +3,13 @@ on:
   release:
     types: [published]
 
+  # Called by release-please: tags/releases made with GITHUB_TOKEN
+  # do not trigger push/release events (recursive trigger guard)
+  workflow_call:
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 permissions:
   contents: write
 

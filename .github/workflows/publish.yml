@@ -4,6 +4,12 @@ on:
     tags:
       - "v*.*.*"
 
+  workflow_dispatch:
+
+  # Called by release-please: tags/releases made with GITHUB_TOKEN
+  # do not trigger push/release events (recursive trigger guard)
+  workflow_call:
+
 permissions:
   contents: write
 

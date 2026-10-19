@@ -12,8 +12,38 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: googleapis/release-please-action@v5
+      - id: release
+        uses: googleapis/release-please-action@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: python
+
+  # The tag and release are created with GITHUB_TOKEN, which GitHub
+  # refuses to propagate into push/release events (recursive trigger
+  # guard), so the tag- and release-triggered workflows are invoked
+  # explicitly instead.
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/publish.yml
+    permissions:
+      contents: write
+
+  deploy-pages:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/page.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  readme:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/readme.yml
+    permissions:
+      contents: write
